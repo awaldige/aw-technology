@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Referências de UI ---
     const productGrid = document.getElementById('product-grid');
     const cartCountElements = [document.getElementById('cart-count'), document.getElementById('cart-count-mobile')];
     
@@ -15,11 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartTotalElement = document.getElementById('cart-total');
     const checkoutBtn = document.getElementById('checkout-btn');
 
-    // --- 0. Sistema de Proteção, Atalho ADM e Social Demo ---
+    // --- 0. Sistema de Proteção e Atalho ADM ---
     
     // Função para Mensagem de Redes Sociais (Modo Demo)
     window.socialDemo = (rede) => {
-        alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente no código, mas encontra-se temporariamente desativado nesta versão de testes da plataforma AW TECHNOLOGY.`);
+        alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente no código, mas encontra-se temporariamente desativado nesta versão de testes.`);
     };
 
     const checkAdminVisibility = () => {
@@ -30,24 +31,50 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Lógica dos 5 cliques na Logo
     let logoClicks = 0;
     const logo = document.querySelector('h1'); 
-    logo?.addEventListener('click', () => {
-        logoClicks++;
-        if (logoClicks === 5) {
-            window.location.href = 'login.html';
-            logoClicks = 0;
-        }
-        setTimeout(() => { logoClicks = 0; }, 3000); 
-    });
+    if (logo) {
+        logo.style.cursor = 'pointer';
+        logo.addEventListener('click', () => {
+            logoClicks++;
+            if (logoClicks === 5) {
+                window.location.href = 'login.html';
+                logoClicks = 0;
+            }
+            setTimeout(() => { logoClicks = 0; }, 3000); 
+        });
+    }
 
     // --- 1. Banco de Dados AW TECHNOLOGY ---
     const loadProducts = () => {
         const defaultProducts = [
-            { id: 1, name: "GPU RTX Series Flow", price: 4599, image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=400", description: "" },
-            { id: 2, name: "CPU Core Flow i9", price: 2899, image: "https://images.unsplash.com/photo-1591405351990-4726e33df58d?auto=format&fit=crop&q=80&w=400", description: "" }
+            { id: 101, name: "HD WD Purple Surveillance 6TB 3.5\"", price: 1229, image: "https://m.media-amazon.com/images/I/81S2Wb17P4L._AC_SL1500_.jpg", description: "Engenharia de elite: componente selecionado pela AW TECHNOLOGY para eliminar gargalos e elevar seu setup ao padrão competitivo." },
+            { id: 102, name: "Placa de Vídeo Inno3d RTX 5070", price: 6300, image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=400", description: "Desempenho de próxima geração para setups de ultra-performance." },
+            { id: 103, name: "Kit Upgrade, Intel i9-14900K, B760M DDR5", price: 5200, image: "https://images.unsplash.com/photo-1591405351990-4726e33df58d?auto=format&fit=crop&q=80&w=400", description: "O coração do seu setup. Máximo poder de processamento." },
+            { id: 104, name: "HD Externo Expansion Seagate 4TB", price: 1300, image: "https://m.media-amazon.com/images/I/81tjLksKixL._AC_SL1500_.jpg", description: "Espaço de sobra para seus projetos e games." },
+            { id: 105, name: "ASUS ROG Strix GeForce RTX 4090", price: 13350, image: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&q=80&w=400", description: "A rainha das GPUs. Performance sem compromissos." },
+            { id: 106, name: "MSI Gaming Slim RTX 4070 Ti Super", price: 8200, image: "https://m.media-amazon.com/images/I/71R2oIsc9HL._AC_SL1500_.jpg", description: "Potência em formato slim para gabinetes compactos." },
+            { id: 107, name: "AMD Ryzen 7 7800X3D", price: 2250, image: "https://m.media-amazon.com/images/I/51fS8rT9uWL._AC_SL1000_.jpg", description: "A melhor CPU para jogos do mundo." },
+            { id: 108, name: "Intel Core i7-14700K", price: 2800, image: "https://m.media-amazon.com/images/I/61Sno74HAnL._AC_SL1200_.jpg", description: "Equilíbrio perfeito entre produtividade e jogos." },
+            { id: 109, name: "Corsair Dominator Titanium DDR5 (32GB)", price: 2220, image: "https://m.media-amazon.com/images/I/71+v8O6NgeL._AC_SL1500_.jpg", description: "Memória de elite com estética insuperável." },
+            { id: 110, name: "SSD Samsung 990 Pro 2TB", price: 3300, image: "https://m.media-amazon.com/images/I/61p-K8u+e9L._AC_SL1500_.jpg", description: "Velocidade de leitura absurda para tempos de loading zero." },
+            { id: 111, name: "Water Cooler NZXT Kraken Elite 360 RGB", price: 2250, image: "https://m.media-amazon.com/images/I/71XG83O50KL._AC_SL1500_.jpg", description: "Refrigeração premium com tela LCD customizável." },
+            { id: 112, name: "Lian Li Uni Fan SL-LCD 120", price: 352, image: "https://m.media-amazon.com/images/I/61Uv5vVq14L._AC_SL1500_.jpg", description: "Fans de alta performance com telas LCD integradas." },
+            { id: 113, name: "Gabinete Hyte Y70 Touch Infinite Black", price: 3920, image: "https://m.media-amazon.com/images/I/71Zp+T+f2vL._AC_SL1500_.jpg", description: "Gabinete panorâmico com tela touch 4K integrada." },
+            { id: 114, name: "Lian Li O11 Vision Compact Branco", price: 1280, image: "https://m.media-amazon.com/images/I/61R-8C9F-5L._AC_SL1500_.jpg", description: "Design visionário com três vidros temperados." },
+            { id: 115, name: "Water Cooler MSI MAG Coreliquid A13", price: 920, image: "https://m.media-amazon.com/images/I/61qYF8Y0f2L._AC_SL1500_.jpg", description: "Estética clean em branco com refrigeração eficiente." },
+            { id: 116, name: "Gabinete Lian Li PC-O11 Dynamic XL", price: 1800, image: "https://m.media-amazon.com/images/I/71Zp+T+f2vL._AC_SL1500_.jpg", description: "O clássico dos entusiastas em versão estendida." },
+            { id: 117, name: "Fonte Corsair RM1000x Shift", price: 1450, image: "https://m.media-amazon.com/images/I/718V3S-K0AL._AC_SL1500_.jpg", description: "Energia estável e limpa com cabos laterais inovadores." },
+            { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&q=80&w=400", description: "Experiência de digitação única para setups high-end." }
         ];
-        return JSON.parse(localStorage.getItem('aw_products')) || defaultProducts;
+
+        const savedProducts = JSON.parse(localStorage.getItem('aw_products'));
+        if (!savedProducts || savedProducts.length < defaultProducts.length) {
+            localStorage.setItem('aw_products', JSON.stringify(defaultProducts));
+            return defaultProducts;
+        }
+        return savedProducts;
     };
 
     let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
@@ -123,13 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                 </div>
                 <h4 class="text-xl font-bold mb-2">${product.name}</h4>
-                
                 <p class="text-gray-400 text-sm mb-6 leading-relaxed line-clamp-3">
-                    ${product.description && product.description.trim() !== "" 
-                        ? product.description 
-                        : "Hardware de elite selecionado pela AW TECHNOLOGY para máxima performance."}
+                    ${product.description && product.description.trim() !== "" ? product.description : "Hardware de elite selecionado pela AW TECHNOLOGY."}
                 </p>
-
                 <div class="flex items-center justify-between mt-auto">
                     <span class="text-xl font-bold text-blue-400">R$ ${Number(product.price).toLocaleString('pt-br', { minimumFractionDigits: 2 })}</span>
                     <button onclick="addToCart(${product.id})" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-lg transition-all active:scale-95">
@@ -173,41 +196,25 @@ document.addEventListener('DOMContentLoaded', () => {
     window.changePage = (page) => {
         currentPage = page;
         renderProducts();
-        const section = document.getElementById('product-grid-section');
-        if (section) {
-            window.scrollTo({ top: section.offsetTop - 100, behavior: 'smooth' });
-        }
+        window.scrollTo({ top: document.getElementById('product-grid').offsetTop - 100, behavior: 'smooth' });
     };
 
-    // --- 5. Checkout WhatsApp (AW TECHNOLOGY) ---
+    // --- 5. Checkout WhatsApp ---
     checkoutBtn?.addEventListener('click', () => {
         if (cart.length === 0) return alert("Seu carrinho está vazio!");
-        
         const numeroZap = "5511985878638";
         let mensagem = "🚀 *NOVO PEDIDO - AW TECHNOLOGY*\n\n";
-        mensagem += "Olá! Selecionei estes itens de elite no catálogo:\n";
-        mensagem += "------------------------------------------\n";
-        
         let total = 0;
         cart.forEach(item => {
             const p = Number(item.price) || 0;
-            mensagem += `📦 *${item.name}*\n   _R$ ${p.toLocaleString('pt-br', { minimumFractionDigits: 2 })}_\n\n`;
+            mensagem += `📦 *${item.name}* - R$ ${p.toLocaleString('pt-br', { minimumFractionDigits: 2 })}\n`;
             total += p;
         });
-        
-        mensagem += "------------------------------------------\n";
-        mensagem += `💰 *TOTAL: R$ ${total.toLocaleString('pt-br', { minimumFractionDigits: 2 })}*\n\n`;
-        mensagem += "📱 _Pedido gerado pela plataforma AW Technology_";
-
+        mensagem += `\n💰 *TOTAL: R$ ${total.toLocaleString('pt-br', { minimumFractionDigits: 2 })}*`;
         window.open(`https://wa.me/${numeroZap}?text=${encodeURIComponent(mensagem)}`, '_blank');
-        
         cart = [];
         updateCartUI();
-        if (!cartSidebar.classList.contains('translate-x-full')) toggleCart();
-        
-        setTimeout(() => {
-            alert("Pedido enviado com sucesso para nossa consultoria!");
-        }, 800);
+        toggleCart();
     });
 
     // --- 6. Event Listeners UI ---
@@ -217,16 +224,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menu-overlay')?.addEventListener('click', toggleCart);
 
     const menuBtn = document.getElementById('menu-btn');
-    const closeBtn = document.getElementById('close-btn');
     const mobileMenu = document.getElementById('mobile-menu');
-
-    const toggleMobileMenu = () => {
+    menuBtn?.addEventListener('click', () => {
         mobileMenu?.classList.toggle('translate-x-full');
         document.getElementById('menu-overlay')?.classList.toggle('hidden');
-    };
-
-    menuBtn?.addEventListener('click', toggleMobileMenu);
-    closeBtn?.addEventListener('click', toggleMobileMenu);
+    });
 
     function initScrollReveal() {
         const observer = new IntersectionObserver((entries) => {
@@ -237,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }, { threshold: 0.1 });
-        
         document.querySelectorAll('.card-premium').forEach(card => {
             card.style.opacity = "0";
             card.style.transform = "translateY(20px)";
