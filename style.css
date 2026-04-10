@@ -1,0 +1,37 @@
+/* Importação da fonte como fallback e definição global */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Efeito de elevação suave nos cards */
+.card-premium {
+    box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.5);
+}
+
+.card-premium:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px -20px rgba(37, 99, 235, 0.2); /* Sombra azulada no hover */
+}
+
+/* Customização da Scrollbar para ficar combinando com o tema Dark */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #111827;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2563eb;
+}
+
+/* Ajuste de suavidade na rolagem da página */
+html {
+    scroll-behavior: smooth;
+}
