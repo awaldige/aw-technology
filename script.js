@@ -4,14 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartCountElements = [
         document.getElementById('cart-count'), 
         document.getElementById('cart-count-mobile'),
-        document.getElementById('cart-count-mobile-trigger') // Adicionado para o novo botão do HTML
-    ];
+        document.getElementById('cart-count-mobile-trigger')
+    ].filter(el => el !== null); // Garante que não dê erro se algum ID faltar no HTML
     
-    // --- Variáveis de Paginação ---
     let currentPage = 1;
     const productsPerPage = 9;
 
-    // Elementos do Carrinho
+    // Elementos do Carrinho e Menu
     const cartSidebar = document.getElementById('cart-sidebar');
     const cartBtn = document.getElementById('cart-btn');
     const cartBtnMobileTrigger = document.getElementById('cart-btn-mobile-trigger');
@@ -20,8 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartTotalElement = document.getElementById('cart-total');
     const checkoutBtn = document.getElementById('checkout-btn');
     const menuOverlay = document.getElementById('menu-overlay');
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const closeMenu = document.getElementById('close-btn');
 
-    // --- 0. Sistema de Proteção e Atalho ADM ---
+    // --- 0. Funções de Auxílio ---
     window.socialDemo = (rede) => {
         alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente.`);
     };
@@ -33,20 +35,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Lógica dos 5 cliques na Logo
+    // Atalho ADM (5 cliques na logo)
     let logoClicks = 0;
     const logo = document.querySelector('h1'); 
     if (logo) {
         logo.addEventListener('click', () => {
             logoClicks++;
-            if (logoClicks === 5) {
-                window.location.href = 'login.html';
-            }
+            if (logoClicks === 5) { window.location.href = 'login.html'; }
             setTimeout(() => { logoClicks = 0; }, 3000); 
         });
     }
 
-    // --- 1. Banco de Dados AW TECHNOLOGY (Com Sincronização Forçada) ---
+    // --- 1. Banco de Dados com Sincronização Inteligente ---
     const loadProducts = () => {
         const defaultProducts = [
             { id: 101, name: "HD WD Purple Surveillance 6TB 3.5\"", price: 1229, image: "https://m.media-amazon.com/images/I/81S2Wb17P4L._AC_SL1500_.jpg", description: "Engenharia de elite: componente selecionado pela AW TECHNOLOGY para eliminar gargalos." },
@@ -69,27 +69,30 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&q=80&w=400", description: "Experiência de digitação única para setups high-end." }
         ];
 
-        // LOGICA DE SINCRONIZAÇÃO: Se mudar a versão, o mobile limpa e pega as fotos novas
-        const DB_VERSION = "2.5"; 
+        const CURRENT_VERSION = "14.0"; 
         const savedVersion = localStorage.getItem('aw_db_version');
-        const savedProducts = JSON.parse(localStorage.getItem('aw_products'));
 
-        if (savedVersion !== DB_VERSION || !savedProducts) {
+        if (savedVersion !== CURRENT_VERSION) {
             localStorage.setItem('aw_products', JSON.stringify(defaultProducts));
-            localStorage.setItem('aw_db_version', DB_VERSION);
+            localStorage.setItem('aw_db_version', CURRENT_VERSION);
             return defaultProducts;
         }
-        return savedProducts;
+
+        try {
+            const saved = localStorage.getItem('aw_products');
+            return saved ? JSON.parse(saved) : defaultProducts;
+        } catch (e) {
+            return defaultProducts;
+        }
     };
 
     let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
 
-    // --- 2. Interface do Carrinho ---
-    const toggleCart = () => {
-        if (!cartSidebar) return;
-        cartSidebar.classList.toggle('translate-x-full');
-        menuOverlay?.classList.toggle('hidden');
-        document.body.classList.toggle('no-scroll');
+    // --- 2. Lógica do Carrinho ---
+    const updateCartUI = () => {
+        cartCountElements.forEach(el => { if (el) el.innerText = cart.length; });
+        localStorage.setItem('aw_cart', JSON.stringify(cart));
+        renderCartItems();
     };
 
     const renderCartItems = () => {
@@ -105,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             total += price;
             return `
                 <div class="flex items-center gap-3 bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-                    <img src="${item.image}" class="w-14 h-14 rounded-lg object-contain bg-gray-900 border border-gray-700">
+                    <img src="${item.image}" class="w-14 h-14 rounded-lg object-contain bg-white p-1" onerror="this.src='https://placehold.co/100x100/1f2937/white?text=IMG'">
                     <div class="flex-1 min-w-0">
                         <h4 class="text-xs font-bold truncate">${item.name}</h4>
                         <p class="text-blue-400 font-bold text-sm">R$ ${price.toLocaleString('pt-br')}</p>
@@ -117,12 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }).join('');
         cartTotalElement.innerText = `R$ ${total.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`;
-    };
-
-    const updateCartUI = () => {
-        cartCountElements.forEach(el => { if (el) el.innerText = cart.length; });
-        localStorage.setItem('aw_cart', JSON.stringify(cart));
-        renderCartItems();
     };
 
     window.addToCart = (id) => {
@@ -140,53 +137,47 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCartUI();
     };
 
-    // --- 4. Renderização Responsiva ---
+    const toggleCart = () => {
+        cartSidebar?.classList.toggle('translate-x-full');
+        menuOverlay?.classList.toggle('hidden');
+        document.body.classList.toggle('no-scroll');
+    };
+
+    // --- 3. Renderização de Produtos ---
     const renderProducts = () => {
         if (!productGrid) return;
         const products = loadProducts();
-        const indexOfLastProduct = currentPage * productsPerPage;
-        const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-        const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+        const start = (currentPage - 1) * productsPerPage;
+        const end = start + productsPerPage;
+        const currentProducts = products.slice(start, end);
 
-        productGrid.innerHTML = currentProducts.map(product => `
+        productGrid.innerHTML = currentProducts.map(p => `
             <div class="card-premium bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col h-full group">
-                <div class="product-img-container rounded-xl mb-4 relative overflow-hidden bg-gray-900">
-                    <img src="${product.image}" 
-                         alt="${product.name}" 
-                         class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500"
-                         onerror="this.src='https://placehold.co/400x400/1f2937/white?text=Hardware+Elite'">
+                <div class="product-img-container rounded-xl mb-4 relative overflow-hidden bg-white">
+                    <img src="${p.image}" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/400x400/1f2937/white?text=AW+TECH'">
                 </div>
-                
-                <h4 class="text-lg font-bold mb-2 leading-tight min-h-[3rem]">${product.name}</h4>
-                
-                <p class="text-gray-400 text-xs mb-4 leading-relaxed line-clamp-3 flex-grow">
-                    ${product.description}
-                </p>
-                
+                <h4 class="text-lg font-bold mb-2 min-h-[3rem] line-clamp-2">${p.name}</h4>
+                <p class="text-gray-400 text-xs mb-4 line-clamp-3 flex-grow">${p.description}</p>
                 <div class="flex flex-col gap-3 mt-auto pt-4 border-t border-gray-700/50">
-                    <span class="text-xl font-black text-blue-400">R$ ${Number(product.price).toLocaleString('pt-br', { minimumFractionDigits: 2 })}</span>
-                    <button onclick="addToCart(${product.id})" 
-                            class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-900/20">
+                    <span class="text-xl font-black text-blue-400">R$ ${Number(p.price).toLocaleString('pt-br', { minimumFractionDigits: 2 })}</span>
+                    <button onclick="addToCart(${p.id})" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95">
                         Adicionar ao Carrinho
                     </button>
                 </div>
             </div>
         `).join('');
 
-        renderPaginationControls(products.length);
+        renderPagination(products.length);
         initScrollReveal();
     };
 
-    const renderPaginationControls = (totalProducts) => {
-        const totalPages = Math.ceil(totalProducts / productsPerPage);
+    const renderPagination = (total) => {
+        const pages = Math.ceil(total / productsPerPage);
         const container = document.getElementById('pagination-container');
-        if (!container || totalPages <= 1) return;
-
-        container.innerHTML = Array.from({ length: totalPages }, (_, i) => `
-            <button onclick="changePage(${i + 1})" class="w-10 h-10 rounded-lg font-bold transition-all ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}">
-                ${i + 1}
-            </button>
-        `).join('');
+        if (!container) return;
+        container.innerHTML = pages > 1 ? Array.from({ length: pages }, (_, i) => `
+            <button onclick="changePage(${i + 1})" class="w-10 h-10 rounded-lg font-bold transition-all ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}">${i+1}</button>
+        `).join('') : '';
     };
 
     window.changePage = (page) => {
@@ -195,48 +186,31 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: document.getElementById('product-grid-section').offsetTop - 100, behavior: 'smooth' });
     };
 
-    // --- 5. Checkout WhatsApp ---
-    checkoutBtn?.addEventListener('click', () => {
-        if (cart.length === 0) return alert("Carrinho vazio!");
-        const numeroZap = "5511985878638";
-        let mensagem = "🚀 *NOVO PEDIDO - AW TECHNOLOGY*\n\n";
-        let total = 0;
-        cart.forEach(item => {
-            mensagem += `📦 *${item.name}*\n`;
-            total += (Number(item.price) || 0);
-        });
-        mensagem += `\n💰 *TOTAL: R$ ${total.toLocaleString('pt-br')}*`;
-        window.open(`https://wa.me/${numeroZap}?text=${encodeURIComponent(mensagem)}`, '_blank');
-        cart = [];
-        updateCartUI();
-        toggleCart();
-    });
-
-    // --- 6. Event Listeners UI Mobile ---
+    // --- 4. Eventos e Inicialização ---
     cartBtn?.addEventListener('click', toggleCart);
     cartBtnMobileTrigger?.addEventListener('click', toggleCart);
     closeCart?.addEventListener('click', toggleCart);
-    menuOverlay?.addEventListener('click', () => {
-        cartSidebar?.classList.add('translate-x-full');
-        mobileMenu?.classList.add('translate-x-full');
-        menuOverlay?.classList.add('hidden');
-        document.body.classList.remove('no-scroll');
-    });
-
-    const menuBtn = document.getElementById('menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const closeMenu = document.getElementById('close-btn');
-
+    
     menuBtn?.addEventListener('click', () => {
         mobileMenu?.classList.remove('translate-x-full');
         menuOverlay?.classList.remove('hidden');
         document.body.classList.add('no-scroll');
     });
 
-    closeMenu?.addEventListener('click', () => {
+    const closeAll = () => {
         mobileMenu?.classList.add('translate-x-full');
+        cartSidebar?.classList.add('translate-x-full');
         menuOverlay?.classList.add('hidden');
         document.body.classList.remove('no-scroll');
+    };
+
+    closeMenu?.addEventListener('click', closeAll);
+    menuOverlay?.addEventListener('click', closeAll);
+
+    checkoutBtn?.addEventListener('click', () => {
+        if (cart.length === 0) return alert("Carrinho vazio!");
+        const msg = encodeURIComponent(`🚀 *NOVO PEDIDO - AW TECHNOLOGY*\n\n${cart.map(i => `📦 *${i.name}*`).join('\n')}\n\n💰 *TOTAL: R$ ${cart.reduce((a,b) => a + Number(b.price), 0).toLocaleString('pt-br')}*`);
+        window.open(`https://wa.me/5511985878638?text=${msg}`, '_blank');
     });
 
     function initScrollReveal() {
@@ -248,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }, { threshold: 0.1 });
-        
         document.querySelectorAll('.card-premium').forEach(card => {
             card.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-700');
             observer.observe(card);
