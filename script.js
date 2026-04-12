@@ -1,25 +1,17 @@
-/**
- * AW TECHNOLOGY - SCRIPT LOCALHOST CORRIGIDO
- * Ajustes: Globalização de funções e Proxy de Imagens
- */
-
-// --- 0. Sistema de Proteção e Atalho ADM (FORA DO DOM PARA ESCOPO GLOBAL) ---
-window.socialDemo = (rede) => {
-    alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente.`);
-};
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- Referências de UI ---
     const productGrid = document.getElementById('product-grid');
     const cartCountElements = [
         document.getElementById('cart-count'), 
         document.getElementById('cart-count-mobile'),
-        document.getElementById('cart-count-mobile-trigger')
+        document.getElementById('cart-count-mobile-trigger') // Adicionado para o novo botão do HTML
     ];
     
+    // --- Variáveis de Paginação ---
     let currentPage = 1;
     const productsPerPage = 9;
 
+    // Elementos do Carrinho
     const cartSidebar = document.getElementById('cart-sidebar');
     const cartBtn = document.getElementById('cart-btn');
     const cartBtnMobileTrigger = document.getElementById('cart-btn-mobile-trigger');
@@ -29,6 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkoutBtn = document.getElementById('checkout-btn');
     const menuOverlay = document.getElementById('menu-overlay');
 
+    // --- 0. Sistema de Proteção e Atalho ADM ---
+    window.socialDemo = (rede) => {
+        alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente.`);
+    };
+
     const checkAdminVisibility = () => {
         const isAdmin = localStorage.getItem('aw_admin_auth') === 'true';
         document.querySelectorAll('.admin-only').forEach(el => {
@@ -36,17 +33,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Lógica dos 5 cliques na Logo
     let logoClicks = 0;
     const logo = document.querySelector('h1'); 
     if (logo) {
         logo.addEventListener('click', () => {
             logoClicks++;
-            if (logoClicks === 5) { window.location.href = 'login.html'; }
+            if (logoClicks === 5) {
+                window.location.href = 'login.html';
+            }
             setTimeout(() => { logoClicks = 0; }, 3000); 
         });
     }
 
-    // --- 1. Banco de Dados AW TECHNOLOGY (Com Proxy de Imagem) ---
+    // --- 1. Banco de Dados AW TECHNOLOGY (Com Sincronização Forçada) ---
     const loadProducts = () => {
         const defaultProducts = [
             { id: 101, name: "HD WD Purple Surveillance 6TB 3.5\"", price: 1229, image: "https://m.media-amazon.com/images/I/81S2Wb17P4L._AC_SL1500_.jpg", description: "Engenharia de elite: componente selecionado pela AW TECHNOLOGY para eliminar gargalos." },
@@ -69,16 +69,17 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&q=80&w=400", description: "Experiência de digitação única para setups high-end." }
         ];
 
-        // SINCRONIZAÇÃO: Subi para 3.0 para forçar a limpeza do cache de imagens ruins
-        const DB_VERSION = "3.0"; 
+        // LOGICA DE SINCRONIZAÇÃO: Se mudar a versão, o mobile limpa e pega as fotos novas
+        const DB_VERSION = "2.5"; 
         const savedVersion = localStorage.getItem('aw_db_version');
+        const savedProducts = JSON.parse(localStorage.getItem('aw_products'));
 
-        if (savedVersion !== DB_VERSION) {
+        if (savedVersion !== DB_VERSION || !savedProducts) {
             localStorage.setItem('aw_products', JSON.stringify(defaultProducts));
             localStorage.setItem('aw_db_version', DB_VERSION);
             return defaultProducts;
         }
-        return JSON.parse(localStorage.getItem('aw_products')) || defaultProducts;
+        return savedProducts;
     };
 
     let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
@@ -104,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             total += price;
             return `
                 <div class="flex items-center gap-3 bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-                    <img src="${item.image}" class="w-14 h-14 rounded-lg object-contain bg-white">
+                    <img src="${item.image}" class="w-14 h-14 rounded-lg object-contain bg-gray-900 border border-gray-700">
                     <div class="flex-1 min-w-0">
                         <h4 class="text-xs font-bold truncate">${item.name}</h4>
                         <p class="text-blue-400 font-bold text-sm">R$ ${price.toLocaleString('pt-br')}</p>
@@ -147,30 +148,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
         const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
-        productGrid.innerHTML = currentProducts.map(product => {
-            // Lógica para contornar o bloqueio de imagem da Amazon
-            const isAmazon = product.image.includes('amazon') || product.image.includes('media-amazon');
-            const displayImage = isAmazon ? `https://images.weserv.nl/?url=${encodeURIComponent(product.image)}&w=400&fit=contain` : product.image;
-
-            return `
+        productGrid.innerHTML = currentProducts.map(product => `
             <div class="card-premium bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col h-full group">
-                <div class="product-img-container rounded-xl mb-4 relative overflow-hidden bg-white">
-                    <img src="${displayImage}" 
+                <div class="product-img-container rounded-xl mb-4 relative overflow-hidden bg-gray-900">
+                    <img src="${product.image}" 
                          alt="${product.name}" 
                          class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500"
                          onerror="this.src='https://placehold.co/400x400/1f2937/white?text=Hardware+Elite'">
                 </div>
+                
                 <h4 class="text-lg font-bold mb-2 leading-tight min-h-[3rem]">${product.name}</h4>
-                <p class="text-gray-400 text-xs mb-4 leading-relaxed line-clamp-3 flex-grow">${product.description}</p>
+                
+                <p class="text-gray-400 text-xs mb-4 leading-relaxed line-clamp-3 flex-grow">
+                    ${product.description}
+                </p>
+                
                 <div class="flex flex-col gap-3 mt-auto pt-4 border-t border-gray-700/50">
                     <span class="text-xl font-black text-blue-400">R$ ${Number(product.price).toLocaleString('pt-br', { minimumFractionDigits: 2 })}</span>
                     <button onclick="addToCart(${product.id})" 
-                            class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95">
+                            class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-900/20">
                         Adicionar ao Carrinho
                     </button>
                 </div>
             </div>
-        `}).join('');
+        `).join('');
 
         renderPaginationControls(products.length);
         initScrollReveal();
@@ -185,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <button onclick="changePage(${i + 1})" class="w-10 h-10 rounded-lg font-bold transition-all ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}">
                 ${i + 1}
             </button>
-        `).join('') : '';
+        `).join('');
     };
 
     window.changePage = (page) => {
@@ -211,11 +212,17 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleCart();
     });
 
-    // --- 6. Event Listeners UI ---
+    // --- 6. Event Listeners UI Mobile ---
     cartBtn?.addEventListener('click', toggleCart);
     cartBtnMobileTrigger?.addEventListener('click', toggleCart);
     closeCart?.addEventListener('click', toggleCart);
-    
+    menuOverlay?.addEventListener('click', () => {
+        cartSidebar?.classList.add('translate-x-full');
+        mobileMenu?.classList.add('translate-x-full');
+        menuOverlay?.classList.add('hidden');
+        document.body.classList.remove('no-scroll');
+    });
+
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
     const closeMenu = document.getElementById('close-btn');
@@ -226,15 +233,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('no-scroll');
     });
 
-    const closeAll = () => {
+    closeMenu?.addEventListener('click', () => {
         mobileMenu?.classList.add('translate-x-full');
-        if(cartSidebar) cartSidebar.classList.add('translate-x-full');
         menuOverlay?.classList.add('hidden');
         document.body.classList.remove('no-scroll');
-    };
-
-    closeMenu?.addEventListener('click', closeAll);
-    menuOverlay?.addEventListener('click', closeAll);
+    });
 
     function initScrollReveal() {
         const observer = new IntersectionObserver((entries) => {
