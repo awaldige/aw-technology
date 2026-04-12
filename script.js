@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ELEMENTOS
     // ========================
     const productGrid = document.getElementById('product-grid');
+
     const cartCountElements = [
         document.getElementById('cart-count'),
         document.getElementById('cart-count-mobile')
@@ -26,20 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const productsPerPage = 9;
 
     // ========================
-    // SOCIAL DEMO
-    // ========================
-    window.socialDemo = (rede) => {
-        mostrarToast(`🚧 ${rede} em desenvolvimento`);
-    };
-
-    // ========================
-    // PRODUTOS (ORIGINAL)
+    // PRODUTOS (SEU ORIGINAL)
     // ========================
     const loadProducts = () => {
-        const defaultProducts = JSON.parse(localStorage.getItem('aw_products'));
-
-        if (defaultProducts) return defaultProducts;
-
         return [
             { id: 101, name: "HD WD Purple Surveillance 6TB", price: 1229, image: "https://m.media-amazon.com/images/I/81S2Wb17P4L._AC_SL1500_.jpg" },
             { id: 102, name: "RTX 5070", price: 6300, image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=400" },
@@ -66,21 +56,24 @@ document.addEventListener('DOMContentLoaded', () => {
     let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
 
     // ========================
-    // RENDER PRODUTOS
+    // RENDER PRODUTOS (PREMIUM)
     // ========================
     const renderProducts = () => {
         const start = (currentPage - 1) * productsPerPage;
         const pageProducts = products.slice(start, start + productsPerPage);
 
         productGrid.innerHTML = pageProducts.map(p => `
-            <div class="bg-gray-800 p-4 rounded-xl">
+            <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 flex flex-col">
                 <div class="product-img-container mb-4">
                     <img src="${p.image}" loading="lazy"
-                        onerror="this.onerror=null;this.src='https://placehold.co/400x400'">
+                    onerror="this.src='https://placehold.co/400x400'">
                 </div>
-                <h2 class="font-bold">${p.name}</h2>
-                <p class="text-blue-400">R$ ${p.price}</p>
-                <button onclick="addToCart(${p.id})" class="bg-blue-600 w-full mt-3 py-2 rounded">
+
+                <h3 class="font-bold mb-2">${p.name}</h3>
+                <p class="text-blue-400 font-bold mb-3">R$ ${p.price}</p>
+
+                <button onclick="addToCart(${p.id})"
+                    class="bg-blue-600 py-2 rounded">
                     Adicionar
                 </button>
             </div>
@@ -95,29 +88,20 @@ document.addEventListener('DOMContentLoaded', () => {
         cart.push(product);
         localStorage.setItem('aw_cart', JSON.stringify(cart));
         updateCartUI();
-        mostrarToast("🛒 Adicionado!");
     };
 
     const updateCartUI = () => {
-        cartCountElements.forEach(el => el.innerText = cart.length);
+        cartCountElements.forEach(el => {
+            if (el) el.innerText = cart.length;
+        });
     };
 
     // ========================
-    // TOAST
+    // SOCIAL
     // ========================
-    function mostrarToast(msg) {
-        const t = document.createElement("div");
-        t.innerText = msg;
-        t.style.cssText = `
-            position: fixed; bottom:20px; left:50%;
-            transform:translateX(-50%);
-            background:#111; color:#fff;
-            padding:12px 20px; border-radius:10px;
-            z-index:9999;
-        `;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 2500);
-    }
+    window.socialDemo = (rede) => {
+        alert(`🚧 ${rede} em desenvolvimento`);
+    };
 
     // ========================
     // INIT
