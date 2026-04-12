@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileMenu = document.getElementById('mobile-menu');
     const closeMenu = document.getElementById('close-btn');
 
-    // --- 0. Funções de Auxílio ---
+    // --- 0. Funções de Auxílio (RESTAURADAS) ---
     window.socialDemo = (rede) => {
         alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente.`);
     };
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 1. Banco de Dados com Sincronização Inteligente ---
+    // --- 1. Banco de Dados ---
     const loadProducts = () => {
         const defaultProducts = [
             { id: 101, name: "HD WD Purple Surveillance 6TB 3.5\"", price: 1229, image: "https://m.media-amazon.com/images/I/71Od7Xf5SwL._AC_UL320_.jpg", description: "Engenharia de elite: componente selecionado pela AW TECHNOLOGY para eliminar gargalos." },
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&q=80&w=400", description: "Experiência de digitação única para setups high-end." }
         ];
 
-        const CURRENT_VERSION = "15.0"; // Versão nova para forçar limpeza de cache local
+        const CURRENT_VERSION = "16.0"; 
         const savedVersion = localStorage.getItem('aw_db_version');
 
         if (savedVersion !== CURRENT_VERSION) {
@@ -104,11 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
         cartItemsContainer.innerHTML = cart.map((item, index) => {
             const price = Number(item.price) || 0;
             total += price;
-            // Usando proxy weserv também no carrinho para consistência
-            const safeImage = `https://images.weserv.nl/?url=${encodeURIComponent(item.image)}&w=150&fit=contain`;
             return `
                 <div class="flex items-center gap-3 bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-                    <img src="${safeImage}" referrerpolicy="no-referrer" class="w-14 h-14 rounded-lg object-contain bg-white p-1" onerror="this.src='https://placehold.co/100x100/1f2937/white?text=IMG'">
+                    <img src="${item.image}" class="w-14 h-14 rounded-lg object-contain bg-white p-1" onerror="this.src='https://placehold.co/100x100/1f2937/white?text=IMG'">
                     <div class="flex-1 min-w-0">
                         <h4 class="text-xs font-bold truncate">${item.name}</h4>
                         <p class="text-blue-400 font-bold text-sm">R$ ${price.toLocaleString('pt-br')}</p>
@@ -128,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (product) {
             cart.push(product);
             updateCartUI();
-            if (cartSidebar?.classList.contains('translate-x-full')) toggleCart();
+            if (cartSidebar && cartSidebar.classList.contains('translate-x-full')) toggleCart();
         }
     };
 
@@ -138,12 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const toggleCart = () => {
-        cartSidebar?.classList.toggle('translate-x-full');
-        menuOverlay?.classList.toggle('hidden');
+        if (cartSidebar) cartSidebar.classList.toggle('translate-x-full');
+        if (menuOverlay) menuOverlay.classList.toggle('hidden');
         document.body.classList.toggle('no-scroll');
     };
 
-    // --- 3. Renderização de Produtos (FIX: PROXY DE IMAGEM ADICIONADO) ---
+    // --- 3. Renderização de Produtos (LÓGICA DE IMAGEM ROBUSTA) ---
     const renderProducts = () => {
         if (!productGrid) return;
         const products = loadProducts();
@@ -152,18 +150,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentProducts = products.slice(start, end);
 
         productGrid.innerHTML = currentProducts.map(p => {
-            // A mágica acontece aqui: images.weserv.nl ignora bloqueios de hotlink da Amazon
-            const safeImage = `https://images.weserv.nl/?url=${encodeURIComponent(p.image)}&w=600&fit=contain`;
-            
+            // Se for imagem da Amazon, usamos o proxy Weserv para pular o bloqueio. 
+            // Se for Unsplash ou outra, carregamos direto.
+            const isAmazon = p.image.includes('amazon') || p.image.includes('media-amazon');
+            const displayImage = isAmazon ? `https://images.weserv.nl/?url=${encodeURIComponent(p.image)}&w=400&fit=contain` : p.image;
+
             return `
             <div class="card-premium bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col h-full group">
                 <div class="product-img-container rounded-xl mb-4 relative overflow-hidden bg-white">
                     <img 
-                        src="${safeImage}" 
-                        referrerpolicy="no-referrer" 
+                        src="${displayImage}" 
                         loading="eager"
                         class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500" 
-                        onerror="this.src='https://placehold.co/400x400/1f2937/white?text=AW+TECH'"
+                        onerror="this.onerror=null;this.src='https://placehold.co/400x400/1f2937/white?text=AW+TECH';"
                     >
                 </div>
                 <h4 class="text-lg font-bold mb-2 min-h-[3rem] line-clamp-2">${p.name}</h4>
@@ -193,7 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.changePage = (page) => {
         currentPage = page;
         renderProducts();
-        window.scrollTo({ top: document.getElementById('product-grid-section').offsetTop - 100, behavior: 'smooth' });
+        const section = document.getElementById('product-grid-section');
+        if (section) window.scrollTo({ top: section.offsetTop - 100, behavior: 'smooth' });
     };
 
     // --- 4. Eventos ---
@@ -238,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Inicialização
     checkAdminVisibility();
     renderProducts();
     updateCartUI();
