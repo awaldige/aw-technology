@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     const productGrid = document.getElementById('product-grid');
+    const paginationContainer = document.getElementById('pagination-container');
 
     const cartCountElements = [
         document.getElementById('cart-count'), 
@@ -17,11 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuOverlay = document.getElementById('menu-overlay');
 
     // =========================
-    // SOCIAL DEMO
+    // CONFIG PAGINAÇÃO
     // =========================
-    window.socialDemo = (rede) => {
-        alert(`🚀 MODO DEMONSTRAÇÃO: ${rede}`);
-    };
+    let currentPage = 1;
+    const productsPerPage = 9;
 
     // =========================
     // ADMIN VISIBILITY
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // =========================
-    // 🔥 PRODUTOS (AGORA DO LOCALSTORAGE)
+    // PRODUTOS (LOCALSTORAGE)
     // =========================
     const loadProducts = () => {
         return JSON.parse(localStorage.getItem('aw_products')) || [];
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // =========================
-    // RENDER PRODUTOS
+    // RENDER PRODUTOS + PAGINAÇÃO
     // =========================
     const renderProducts = () => {
         const products = loadProducts();
@@ -114,10 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!products.length) {
             productGrid.innerHTML = `<p class="text-gray-400">Nenhum produto cadastrado.</p>`;
+            paginationContainer.innerHTML = '';
             return;
         }
 
-        productGrid.innerHTML = products.map(product => `
+        const start = (currentPage - 1) * productsPerPage;
+        const end = start + productsPerPage;
+
+        const paginated = products.slice(start, end);
+
+        productGrid.innerHTML = paginated.map(product => `
             <div class="card-premium bg-gray-800 p-4 rounded-xl flex flex-col">
 
                 <div class="product-img-container">
@@ -142,10 +148,63 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
         `).join('');
+
+        renderPagination(products.length);
     };
 
     // =========================
-    // CHECKOUT WHATSAPP
+    // PAGINAÇÃO UI
+    // =========================
+    const renderPagination = (totalProducts) => {
+        const totalPages = Math.ceil(totalProducts / productsPerPage);
+
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+
+        let buttons = '';
+
+        buttons += `
+            <button class="px-3 py-2 bg-gray-800 rounded" 
+                onclick="changePage(${currentPage - 1})"
+                ${currentPage === 1 ? 'disabled' : ''}>
+                ◀
+            </button>
+        `;
+
+        for (let i = 1; i <= totalPages; i++) {
+            buttons += `
+                <button class="px-3 py-2 rounded ${i === currentPage ? 'bg-blue-600' : 'bg-gray-800'}"
+                    onclick="changePage(${i})">
+                    ${i}
+                </button>
+            `;
+        }
+
+        buttons += `
+            <button class="px-3 py-2 bg-gray-800 rounded"
+                onclick="changePage(${currentPage + 1})"
+                ${currentPage === totalPages ? 'disabled' : ''}>
+                ▶
+            </button>
+        `;
+
+        paginationContainer.innerHTML = buttons;
+    };
+
+    window.changePage = (page) => {
+        const products = loadProducts();
+        const totalPages = Math.ceil(products.length / productsPerPage);
+
+        if (page < 1 || page > totalPages) return;
+
+        currentPage = page;
+        renderProducts();
+    };
+
+    // =========================
+    // CHECKOUT
     // =========================
     checkoutBtn.addEventListener('click', () => {
         if (!cart.length) return alert("Carrinho vazio!");
