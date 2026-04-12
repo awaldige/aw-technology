@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPage = 1;
     const productsPerPage = 9;
 
-    // Elementos do Carrinho e Menu
     const cartSidebar = document.getElementById('cart-sidebar');
     const cartBtn = document.getElementById('cart-btn');
     const cartBtnMobileTrigger = document.getElementById('cart-btn-mobile-trigger');
@@ -35,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Atalho ADM (5 cliques na logo)
     let logoClicks = 0;
     const logo = document.querySelector('h1'); 
     if (logo) {
@@ -69,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&q=80&w=400", description: "Experiência de digitação única para setups high-end." }
         ];
 
-        const CURRENT_VERSION = "14.2"; // Versão atualizada para forçar refresh
+        const CURRENT_VERSION = "15.0"; // Versão nova para forçar limpeza de cache local
         const savedVersion = localStorage.getItem('aw_db_version');
 
         if (savedVersion !== CURRENT_VERSION) {
@@ -106,9 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
         cartItemsContainer.innerHTML = cart.map((item, index) => {
             const price = Number(item.price) || 0;
             total += price;
+            // Usando proxy weserv também no carrinho para consistência
+            const safeImage = `https://images.weserv.nl/?url=${encodeURIComponent(item.image)}&w=150&fit=contain`;
             return `
                 <div class="flex items-center gap-3 bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-                    <img src="${item.image}" referrerpolicy="no-referrer" class="w-14 h-14 rounded-lg object-contain bg-white p-1" onerror="this.src='https://placehold.co/100x100/1f2937/white?text=IMG'">
+                    <img src="${safeImage}" referrerpolicy="no-referrer" class="w-14 h-14 rounded-lg object-contain bg-white p-1" onerror="this.src='https://placehold.co/100x100/1f2937/white?text=IMG'">
                     <div class="flex-1 min-w-0">
                         <h4 class="text-xs font-bold truncate">${item.name}</h4>
                         <p class="text-blue-400 font-bold text-sm">R$ ${price.toLocaleString('pt-br')}</p>
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.toggle('no-scroll');
     };
 
-    // --- 3. Renderização de Produtos (CORREÇÃO DE IMAGEM AQUI) ---
+    // --- 3. Renderização de Produtos (FIX: PROXY DE IMAGEM ADICIONADO) ---
     const renderProducts = () => {
         if (!productGrid) return;
         const products = loadProducts();
@@ -151,11 +151,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const end = start + productsPerPage;
         const currentProducts = products.slice(start, end);
 
-        productGrid.innerHTML = currentProducts.map(p => `
+        productGrid.innerHTML = currentProducts.map(p => {
+            // A mágica acontece aqui: images.weserv.nl ignora bloqueios de hotlink da Amazon
+            const safeImage = `https://images.weserv.nl/?url=${encodeURIComponent(p.image)}&w=600&fit=contain`;
+            
+            return `
             <div class="card-premium bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col h-full group">
                 <div class="product-img-container rounded-xl mb-4 relative overflow-hidden bg-white">
                     <img 
-                        src="${p.image}" 
+                        src="${safeImage}" 
                         referrerpolicy="no-referrer" 
                         loading="eager"
                         class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500" 
@@ -171,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
 
         renderPagination(products.length);
         initScrollReveal();
@@ -192,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: document.getElementById('product-grid-section').offsetTop - 100, behavior: 'smooth' });
     };
 
-    // --- 4. Eventos e Inicialização ---
+    // --- 4. Eventos ---
     cartBtn?.addEventListener('click', toggleCart);
     cartBtnMobileTrigger?.addEventListener('click', toggleCart);
     closeCart?.addEventListener('click', toggleCart);
