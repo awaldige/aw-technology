@@ -1,42 +1,287 @@
-// --- 1. Banco de Dados AW TECHNOLOGY (Sincronização Versão 11.0) ---
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Referências de UI ---
+
+    const productGrid = document.getElementById('product-grid');
+
+    const cartCountElements = [
+
+        document.getElementById('cart-count'), 
+
+        document.getElementById('cart-count-mobile'),
+
+        document.getElementById('cart-count-mobile-trigger')
+
+    ];
+
+    
+
+    // --- Variáveis de Paginação ---
+
+    let currentPage = 1;
+
+    const productsPerPage = 9;
+
+
+
+    // Elementos do Carrinho
+
+    const cartSidebar = document.getElementById('cart-sidebar');
+
+    const cartBtn = document.getElementById('cart-btn');
+
+    const cartBtnMobileTrigger = document.getElementById('cart-btn-mobile-trigger');
+
+    const closeCart = document.getElementById('close-cart');
+
+    const cartItemsContainer = document.getElementById('cart-items');
+
+    const cartTotalElement = document.getElementById('cart-total');
+
+    const checkoutBtn = document.getElementById('checkout-btn');
+
+    const menuOverlay = document.getElementById('menu-overlay');
+
+
+
+    // --- 0. Sistema de Proteção e Atalho ADM ---
+
+    window.socialDemo = (rede) => {
+
+        alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente.`);
+
+    };
+
+
+
+    const checkAdminVisibility = () => {
+
+        const isAdmin = localStorage.getItem('aw_admin_auth') === 'true';
+
+        document.querySelectorAll('.admin-only').forEach(el => {
+
+            el.style.setProperty('display', isAdmin ? 'block' : 'none', 'important');
+
+        });
+
+    };
+
+
+
+    let logoClicks = 0;
+
+    const logo = document.querySelector('h1'); 
+
+    if (logo) {
+
+        logo.addEventListener('click', () => {
+
+            logoClicks++;
+
+            if (logoClicks === 5) { window.location.href = 'login.html'; }
+
+            setTimeout(() => { logoClicks = 0; }, 3000); 
+
+        });
+
+    }
+
+
+
+    // --- 1. Banco de Dados AW TECHNOLOGY (Sincronização Versão 5.0) ---
+
     const loadProducts = () => {
+
         const defaultProducts = [
+
             { id: 101, name: "HD WD Purple Surveillance 6TB 3.5\"", price: 1229, image: "https://m.media-amazon.com/images/I/81S2Wb17P4L._AC_SL1500_.jpg", description: "Engenharia de elite: componente selecionado pela AW TECHNOLOGY para eliminar gargalos." },
+
             { id: 102, name: "Placa de Vídeo Inno3d RTX 5070", price: 6300, image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=400", description: "Desempenho de próxima geração para setups de ultra-performance." },
+
             { id: 103, name: "Kit Upgrade i9-14900K + B760M", price: 5200, image: "https://images.unsplash.com/photo-1591405351990-4726e33df58d?auto=format&fit=crop&q=80&w=400", description: "O coração do seu setup. Máximo poder de processamento." },
+
             { id: 104, name: "HD Externo Expansion Seagate 4TB", price: 1300, image: "https://m.media-amazon.com/images/I/81tjLksKixL._AC_SL1500_.jpg", description: "Espaço de sobra para seus projetos e games." },
+
             { id: 105, name: "ASUS ROG Strix RTX 4090", price: 13350, image: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&q=80&w=400", description: "A rainha das GPUs. Performance sem compromissos." },
+
             { id: 106, name: "MSI Gaming Slim RTX 4070 Ti Super", price: 8200, image: "https://m.media-amazon.com/images/I/71R2oIsc9HL._AC_SL1500_.jpg", description: "Potência em formato slim para gabinetes compactos." },
+
             { id: 107, name: "AMD Ryzen 7 7800X3D", price: 2250, image: "https://m.media-amazon.com/images/I/51fS8rT9uWL._AC_SL1000_.jpg", description: "A melhor CPU para jogos do mundo." },
+
             { id: 108, name: "Intel Core i7-14700K", price: 2800, image: "https://m.media-amazon.com/images/I/61Sno74HAnL._AC_SL1200_.jpg", description: "Equilíbrio perfeito entre produtividade e jogos." },
+
             { id: 109, name: "Corsair Dominator Titanium DDR5", price: 2220, image: "https://m.media-amazon.com/images/I/71+v8O6NgeL._AC_SL1500_.jpg", description: "Memória de elite com estética insuperável." },
+
             { id: 110, name: "SSD Samsung 990 Pro 2TB", price: 3300, image: "https://m.media-amazon.com/images/I/61p-K8u+e9L._AC_SL1500_.jpg", description: "Velocidade de leitura absurda para tempos de loading zero." },
+
             { id: 111, name: "Water Cooler Kraken Elite 360", price: 2250, image: "https://m.media-amazon.com/images/I/71XG83O50KL._AC_SL1500_.jpg", description: "Refrigeração premium com tela LCD customizável." },
+
             { id: 112, name: "Lian Li Uni Fan SL-LCD 120", price: 352, image: "https://m.media-amazon.com/images/I/61Uv5vVq14L._AC_SL1500_.jpg", description: "Fans de alta performance com telas LCD integradas." },
+
             { id: 113, name: "Gabinete Hyte Y70 Touch Infinite", price: 3920, image: "https://m.media-amazon.com/images/I/71Zp+T+f2vL._AC_SL1500_.jpg", description: "Gabinete panorâmico com tela touch 4K integrada." },
+
             { id: 114, name: "Lian Li O11 Vision Compact", price: 1280, image: "https://m.media-amazon.com/images/I/61R-8C9F-5L._AC_SL1500_.jpg", description: "Design visionário com três vidros temperados." },
+
             { id: 115, name: "Water Cooler MSI MAG Coreliquid", price: 920, image: "https://m.media-amazon.com/images/I/61qYF8Y0f2L._AC_SL1500_.jpg", description: "Estética clean em branco com refrigeração eficiente." },
+
             { id: 116, name: "Gabinete Lian Li PC-O11 Dynamic XL", price: 1800, image: "https://m.media-amazon.com/images/I/71Zp+T+f2vL._AC_SL1500_.jpg", description: "O clássico dos entusiastas em versão estendida." },
+
             { id: 117, name: "Fonte Corsair RM1000x Shift", price: 1450, image: "https://m.media-amazon.com/images/I/718V3S-K0AL._AC_SL1500_.jpg", description: "Energia estável e limpa com cabos laterais inovadores." },
+
             { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&q=80&w=400", description: "Experiência de digitação única para setups high-end." }
+
         ];
 
-        const CURRENT_DB_VERSION = "11.0"; 
+
+
+        // FORÇA RESET: Se a versão não for 5.0, limpa o cache antigo
+
+        const CURRENT_DB_VERSION = "5.0"; 
+
         const savedVersion = localStorage.getItem('aw_db_version');
 
-        // Se a versão for diferente ou não existir produtos salvos
-        if (savedVersion !== CURRENT_DB_VERSION || !localStorage.getItem('aw_products')) {
-            // Removi o .clear() total para não deslogar você, limpamos apenas as chaves do projeto
-            localStorage.removeItem('aw_products');
+
+
+        if (savedVersion !== CURRENT_DB_VERSION) {
+
             localStorage.setItem('aw_products', JSON.stringify(defaultProducts));
+
             localStorage.setItem('aw_db_version', CURRENT_DB_VERSION);
+
             return defaultProducts;
+
         }
 
-        try {
-            const savedProducts = JSON.parse(localStorage.getItem('aw_products'));
-            return (savedProducts && savedProducts.length > 0) ? savedProducts : defaultProducts;
-        } catch (e) {
-            return defaultProducts;
-        }
+
+
+        const savedProducts = JSON.parse(localStorage.getItem('aw_products'));
+
+        return savedProducts || defaultProducts;
+
     };
+
+
+
+    let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
+
+
+
+    // --- 2. Interface do Carrinho ---
+
+    const toggleCart = () => {
+
+        if (!cartSidebar) return;
+
+        cartSidebar.classList.toggle('translate-x-full');
+
+        menuOverlay?.classList.toggle('hidden');
+
+        document.body.classList.toggle('overflow-hidden'); // Trava o scroll no mobile
+
+    };
+
+
+
+    const renderCartItems = () => {
+
+        if (!cartItemsContainer) return;
+
+        if (cart.length === 0) {
+
+            cartItemsContainer.innerHTML = '<p class="text-gray-500 text-center mt-10">Carrinho vazio.</p>';
+
+            cartTotalElement.innerText = 'R$ 0,00';
+
+            return;
+
+        }
+
+        let total = 0;
+
+        cartItemsContainer.innerHTML = cart.map((item, index) => {
+
+            const price = Number(item.price) || 0;
+
+            total += price;
+
+            return `
+
+                <div class="flex items-center gap-3 bg-gray-800/50 p-3 rounded-xl border border-gray-700">
+
+                    <img src="${item.image}" class="w-14 h-14 rounded-lg object-contain bg-white p-1">
+
+                    <div class="flex-1 min-w-0">
+
+                        <h4 class="text-xs font-bold truncate">${item.name}</h4>
+
+                        <p class="text-blue-400 font-bold text-sm">R$ ${price.toLocaleString('pt-br')}</p>
+
+                    </div>
+
+                    <button onclick="removeFromCart(${index})" class="text-gray-500 hover:text-red-500 p-2">
+
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+
+                    </button>
+
+                </div>
+
+            `;
+
+        }).join('');
+
+        cartTotalElement.innerText = `R$ ${total.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`;
+
+    };
+
+
+
+    const updateCartUI = () => {
+
+        cartCountElements.forEach(el => { if (el) el.innerText = cart.length; });
+
+        localStorage.setItem('aw_cart', JSON.stringify(cart));
+
+        renderCartItems();
+
+    };
+
+
+
+    window.addToCart = (id) => {
+
+        const products = loadProducts();
+
+        const product = products.find(p => p.id == id);
+
+        if (product) {
+
+            cart.push(product);
+
+            updateCartUI();
+
+            if (cartSidebar?.classList.contains('translate-x-full')) toggleCart();
+
+        }
+
+    };
+
+
+
+    window.removeFromCart = (index) => {
+
+        cart.splice(index, 1);
+
+        updateCartUI();
+
+    };
+
+
+
+    // --- 4. Renderização Responsiva com Correção de Imagem ---
+
+    const renderProducts = () => {
+
+        if (!productGrid) return;
+
+        const products = loadProducts();
