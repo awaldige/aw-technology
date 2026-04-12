@@ -1,59 +1,77 @@
-/* AW TECHNOLOGY - Custom Stylesheet 
-   Foco: Engenharia de Performance e Estabilidade Mobile
+/* AW TECHNOLOGY - CSS Otimizado v14.2
+   Foco: Compatibilidade Cross-Browser e Estabilidade Mobile
 */
 
-/* Importação da fonte como fallback e definição global */
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* CORREÇÃO CRÍTICA: Container de Imagem 
-   Garante que a imagem tenha espaço reservado e fundo visível no mobile 
+/* CONTAINER DE IMAGEM 
+   Ajustado para garantir renderização em motores WebKit antigos (iOS/Safari)
 */
 .product-img-container {
     width: 100% !important;
-    aspect-ratio: 16 / 10;
     display: flex !important;
     align-items: center;
     justify-content: center;
-    background-color: #ffffff !important; /* Fundo branco para destacar o hardware */
+    background-color: #ffffff !important;
     overflow: hidden;
     position: relative;
     border-radius: 0.75rem;
     z-index: 1;
 }
 
+/* Fallback para navegadores que não entendem aspect-ratio */
+@supports (aspect-ratio: 16/10) {
+    .product-img-container {
+        aspect-ratio: 16 / 10;
+    }
+}
+@supports not (aspect-ratio: 16/10) {
+    .product-img-container {
+        height: 200px; /* Altura fixa de segurança */
+    }
+}
+
 .product-img-container img {
     display: block !important;
-    max-width: 90% !important;
-    max-height: 90% !important;
+    max-width: 85% !important; /* Reduzido levemente para respiro lateral */
+    max-height: 85% !important;
     width: auto !important;
     height: auto !important;
     object-fit: contain !important;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Previne borrão em algumas telas mobile */
+    backface-visibility: hidden; 
 }
 
-/* Efeito de elevação suave nos cards */
+/* CARDS PREMIUM
+   Efeito de hover desativado em dispositivos touch para melhor UX
+*/
 .card-premium {
     transition: all 0.3s ease-in-out;
     box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.5);
-    background: #1f2937; /* bg-gray-800 */
+    background: #1f2937;
     border: 1px solid rgba(55, 65, 81, 0.5);
+    display: flex;
+    flex-direction: column;
 }
 
-.card-premium:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px -20px rgba(37, 99, 235, 0.25);
-    border-color: rgba(59, 130, 246, 0.4);
+@media (hover: hover) {
+    .card-premium:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px -20px rgba(37, 99, 235, 0.25);
+        border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .card-premium:hover img {
+        transform: scale(1.08);
+    }
 }
 
-.card-premium:hover img {
-    transform: scale(1.08);
-}
-
-/* Customização da Scrollbar Dark Mode */
+/* SCROLLBAR CUSTOMIZADA */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -72,28 +90,32 @@ body {
     background: #2563eb;
 }
 
-/* Ajuste de suavidade na rolagem da página */
+/* UTILITÁRIOS */
 html {
     scroll-behavior: smooth;
 }
 
-/* Helper para esconder elementos administrativos se não logado */
 .admin-only {
     display: none !important;
 }
 
-/* Prevenção de scroll quando menu mobile está aberto */
 .no-scroll {
     overflow: hidden;
     height: 100vh;
 }
 
-/* Animação para entrada de novos itens no grid */
-@keyframes fadeInCard {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+/* ANIMAÇÃO DE ENTRADA */
+#product-grid > div {
+    animation: fadeInCard 0.5s ease-out forwards;
 }
 
-#product-grid > div {
-    animation: fadeInCard 0.4s ease-out forwards;
+@keyframes fadeInCard {
+    from { 
+        opacity: 0; 
+        transform: translateY(15px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
 }
