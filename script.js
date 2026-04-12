@@ -1,17 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Referências de UI ---
+
     const productGrid = document.getElementById('product-grid');
+
     const cartCountElements = [
         document.getElementById('cart-count'), 
-        document.getElementById('cart-count-mobile'),
-        document.getElementById('cart-count-mobile-trigger') // Adicionado para o novo botão do HTML
+        document.getElementById('cart-count-mobile')
     ];
-    
-    // --- Variáveis de Paginação ---
+
     let currentPage = 1;
     const productsPerPage = 9;
 
-    // Elementos do Carrinho
     const cartSidebar = document.getElementById('cart-sidebar');
     const cartBtn = document.getElementById('cart-btn');
     const cartBtnMobileTrigger = document.getElementById('cart-btn-mobile-trigger');
@@ -21,9 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkoutBtn = document.getElementById('checkout-btn');
     const menuOverlay = document.getElementById('menu-overlay');
 
-    // --- 0. Sistema de Proteção e Atalho ADM ---
     window.socialDemo = (rede) => {
-        alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente.`);
+        alert(`🚀 MODO DEMONSTRAÇÃO: ${rede}`);
     };
 
     const checkAdminVisibility = () => {
@@ -33,106 +30,89 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Lógica dos 5 cliques na Logo
-    let logoClicks = 0;
-    const logo = document.querySelector('h1'); 
-    if (logo) {
-        logo.addEventListener('click', () => {
-            logoClicks++;
-            if (logoClicks === 5) {
-                window.location.href = 'login.html';
-            }
-            setTimeout(() => { logoClicks = 0; }, 3000); 
-        });
-    }
-
-    // --- 1. Banco de Dados AW TECHNOLOGY (Com Sincronização Forçada) ---
+    // 🔥 PRODUTOS COM IMAGENS ESTÁVEIS
     const loadProducts = () => {
-        const defaultProducts = [
-            { id: 101, name: "HD WD Purple Surveillance 6TB 3.5\"", price: 1229, image: "https://m.media-amazon.com/images/I/81S2Wb17P4L._AC_SL1500_.jpg", description: "Engenharia de elite: componente selecionado pela AW TECHNOLOGY para eliminar gargalos." },
-            { id: 102, name: "Placa de Vídeo Inno3d RTX 5070", price: 6300, image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=400", description: "Desempenho de próxima geração para setups de ultra-performance." },
-            { id: 103, name: "Kit Upgrade i9-14900K + B760M", price: 5200, image: "https://images.unsplash.com/photo-1591405351990-4726e33df58d?auto=format&fit=crop&q=80&w=400", description: "O coração do seu setup. Máximo poder de processamento." },
-            { id: 104, name: "HD Externo Expansion Seagate 4TB", price: 1300, image: "https://m.media-amazon.com/images/I/81tjLksKixL._AC_SL1500_.jpg", description: "Espaço de sobra para seus projetos e games." },
-            { id: 105, name: "ASUS ROG Strix RTX 4090", price: 13350, image: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&q=80&w=400", description: "A rainha das GPUs. Performance sem compromissos." },
-            { id: 106, name: "MSI Gaming Slim RTX 4070 Ti Super", price: 8200, image: "https://m.media-amazon.com/images/I/71R2oIsc9HL._AC_SL1500_.jpg", description: "Potência em formato slim para gabinetes compactos." },
-            { id: 107, name: "AMD Ryzen 7 7800X3D", price: 2250, image: "https://m.media-amazon.com/images/I/51fS8rT9uWL._AC_SL1000_.jpg", description: "A melhor CPU para jogos do mundo." },
-            { id: 108, name: "Intel Core i7-14700K", price: 2800, image: "https://m.media-amazon.com/images/I/61Sno74HAnL._AC_SL1200_.jpg", description: "Equilíbrio perfeito entre produtividade e jogos." },
-            { id: 109, name: "Corsair Dominator Titanium DDR5", price: 2220, image: "https://m.media-amazon.com/images/I/71+v8O6NgeL._AC_SL1500_.jpg", description: "Memória de elite com estética insuperável." },
-            { id: 110, name: "SSD Samsung 990 Pro 2TB", price: 3300, image: "https://m.media-amazon.com/images/I/61p-K8u+e9L._AC_SL1500_.jpg", description: "Velocidade de leitura absurda para tempos de loading zero." },
-            { id: 111, name: "Water Cooler Kraken Elite 360", price: 2250, image: "https://m.media-amazon.com/images/I/71XG83O50KL._AC_SL1500_.jpg", description: "Refrigeração premium com tela LCD customizável." },
-            { id: 112, name: "Lian Li Uni Fan SL-LCD 120", price: 352, image: "https://m.media-amazon.com/images/I/61Uv5vVq14L._AC_SL1500_.jpg", description: "Fans de alta performance com telas LCD integradas." },
-            { id: 113, name: "Gabinete Hyte Y70 Touch Infinite", price: 3920, image: "https://m.media-amazon.com/images/I/71Zp+T+f2vL._AC_SL1500_.jpg", description: "Gabinete panorâmico com tela touch 4K integrada." },
-            { id: 114, name: "Lian Li O11 Vision Compact", price: 1280, image: "https://m.media-amazon.com/images/I/61R-8C9F-5L._AC_SL1500_.jpg", description: "Design visionário com três vidros temperados." },
-            { id: 115, name: "Water Cooler MSI MAG Coreliquid", price: 920, image: "https://m.media-amazon.com/images/I/61qYF8Y0f2L._AC_SL1500_.jpg", description: "Estética clean em branco com refrigeração eficiente." },
-            { id: 116, name: "Gabinete Lian Li PC-O11 Dynamic XL", price: 1800, image: "https://m.media-amazon.com/images/I/71Zp+T+f2vL._AC_SL1500_.jpg", description: "O clássico dos entusiastas em versão estendida." },
-            { id: 117, name: "Fonte Corsair RM1000x Shift", price: 1450, image: "https://m.media-amazon.com/images/I/718V3S-K0AL._AC_SL1500_.jpg", description: "Energia estável e limpa com cabos laterais inovadores." },
-            { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&q=80&w=400", description: "Experiência de digitação única para setups high-end." }
+        return [
+            {
+                id: 101,
+                name: "HD WD Purple 6TB",
+                price: 1229,
+                image: "https://m.media-amazon.com/images/I/81S2Wb17P4L._AC_SL1500_.jpg",
+                description: "Armazenamento de alta confiabilidade para vigilância."
+            },
+            {
+                id: 102,
+                name: "RTX 4070 Ti Super",
+                price: 8200,
+                image: "https://m.media-amazon.com/images/I/71R2oIsc9HL._AC_SL1500_.jpg",
+                description: "Desempenho extremo para jogos e criação."
+            },
+            {
+                id: 103,
+                name: "Ryzen 7 7800X3D",
+                price: 2250,
+                image: "https://m.media-amazon.com/images/I/51fS8rT9uWL._AC_SL1000_.jpg",
+                description: "Processador líder em performance para games."
+            },
+            {
+                id: 104,
+                name: "SSD Samsung 990 Pro 2TB",
+                price: 3300,
+                image: "https://m.media-amazon.com/images/I/61p-K8u+e9L._AC_SL1500_.jpg",
+                description: "Velocidade absurda de leitura e gravação."
+            }
         ];
-
-        // LOGICA DE SINCRONIZAÇÃO: Se mudar a versão, o mobile limpa e pega as fotos novas
-        const DB_VERSION = "2.5"; 
-        const savedVersion = localStorage.getItem('aw_db_version');
-        const savedProducts = JSON.parse(localStorage.getItem('aw_products'));
-
-        if (savedVersion !== DB_VERSION || !savedProducts) {
-            localStorage.setItem('aw_products', JSON.stringify(defaultProducts));
-            localStorage.setItem('aw_db_version', DB_VERSION);
-            return defaultProducts;
-        }
-        return savedProducts;
     };
 
     let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
 
-    // --- 2. Interface do Carrinho ---
     const toggleCart = () => {
-        if (!cartSidebar) return;
         cartSidebar.classList.toggle('translate-x-full');
-        menuOverlay?.classList.toggle('hidden');
+        menuOverlay.classList.toggle('hidden');
         document.body.classList.toggle('no-scroll');
     };
 
     const renderCartItems = () => {
-        if (!cartItemsContainer) return;
         if (cart.length === 0) {
-            cartItemsContainer.innerHTML = '<p class="text-gray-500 text-center mt-10">Carrinho vazio.</p>';
+            cartItemsContainer.innerHTML = '<p class="text-gray-500 text-center">Carrinho vazio</p>';
             cartTotalElement.innerText = 'R$ 0,00';
             return;
         }
+
         let total = 0;
+
         cartItemsContainer.innerHTML = cart.map((item, index) => {
-            const price = Number(item.price) || 0;
-            total += price;
+            total += item.price;
+
             return `
-                <div class="flex items-center gap-3 bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-                    <img src="${item.image}" class="w-14 h-14 rounded-lg object-contain bg-gray-900 border border-gray-700">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-xs font-bold truncate">${item.name}</h4>
-                        <p class="text-blue-400 font-bold text-sm">R$ ${price.toLocaleString('pt-br')}</p>
+                <div class="flex items-center gap-3 bg-gray-800 p-3 rounded-xl">
+                    <img src="${item.image}" class="w-14 h-14 object-contain"
+                         onerror="this.src='https://placehold.co/100x100?text=Erro'">
+                    
+                    <div class="flex-1">
+                        <h4 class="text-sm font-bold">${item.name}</h4>
+                        <p class="text-blue-400">R$ ${item.price}</p>
                     </div>
-                    <button onclick="removeFromCart(${index})" class="text-gray-500 hover:text-red-500 p-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </button>
+
+                    <button onclick="removeFromCart(${index})">❌</button>
                 </div>
             `;
         }).join('');
-        cartTotalElement.innerText = `R$ ${total.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`;
+
+        cartTotalElement.innerText = `R$ ${total}`;
     };
 
     const updateCartUI = () => {
-        cartCountElements.forEach(el => { if (el) el.innerText = cart.length; });
+        cartCountElements.forEach(el => el.innerText = cart.length);
         localStorage.setItem('aw_cart', JSON.stringify(cart));
         renderCartItems();
     };
 
     window.addToCart = (id) => {
-        const products = loadProducts();
-        const product = products.find(p => p.id == id);
-        if (product) {
-            cart.push(product);
-            updateCartUI();
-            if (cartSidebar?.classList.contains('translate-x-full')) toggleCart();
-        }
+        const product = loadProducts().find(p => p.id == id);
+        cart.push(product);
+        updateCartUI();
+        toggleCart();
     };
 
     window.removeFromCart = (index) => {
@@ -140,122 +120,55 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCartUI();
     };
 
-    // --- 4. Renderização Responsiva ---
+    // 🔥 RENDER PRODUTOS COM CORREÇÃO MOBILE
     const renderProducts = () => {
-        if (!productGrid) return;
         const products = loadProducts();
-        const indexOfLastProduct = currentPage * productsPerPage;
-        const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-        const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
-        productGrid.innerHTML = currentProducts.map(product => `
-            <div class="card-premium bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col h-full group">
-                <div class="product-img-container rounded-xl mb-4 relative overflow-hidden bg-gray-900">
-                    <img src="${product.image}" 
-                         alt="${product.name}" 
-                         class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500"
-                         onerror="this.src='https://placehold.co/400x400/1f2937/white?text=Hardware+Elite'">
+        productGrid.innerHTML = products.map(product => `
+            <div class="card-premium bg-gray-800 p-4 rounded-xl flex flex-col">
+
+                <div class="product-img-container">
+                    <img 
+                        src="${product.image}" 
+                        loading="lazy"
+                        referrerpolicy="no-referrer"
+                        class="w-full h-full object-contain"
+                        onerror="
+                            this.onerror=null;
+                            this.src='https://placehold.co/400x400/1f2937/white?text=Sem+Imagem';
+                        "
+                    >
                 </div>
-                
-                <h4 class="text-lg font-bold mb-2 leading-tight min-h-[3rem]">${product.name}</h4>
-                
-                <p class="text-gray-400 text-xs mb-4 leading-relaxed line-clamp-3 flex-grow">
-                    ${product.description}
-                </p>
-                
-                <div class="flex flex-col gap-3 mt-auto pt-4 border-t border-gray-700/50">
-                    <span class="text-xl font-black text-blue-400">R$ ${Number(product.price).toLocaleString('pt-br', { minimumFractionDigits: 2 })}</span>
-                    <button onclick="addToCart(${product.id})" 
-                            class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-900/20">
-                        Adicionar ao Carrinho
-                    </button>
-                </div>
+
+                <h4 class="font-bold mt-3">${product.name}</h4>
+                <p class="text-gray-400 text-sm">${product.description}</p>
+
+                <span class="text-blue-400 font-bold mt-2">
+                    R$ ${product.price}
+                </span>
+
+                <button onclick="addToCart(${product.id})"
+                        class="bg-blue-600 mt-3 py-2 rounded">
+                    Adicionar
+                </button>
             </div>
         `).join('');
-
-        renderPaginationControls(products.length);
-        initScrollReveal();
     };
 
-    const renderPaginationControls = (totalProducts) => {
-        const totalPages = Math.ceil(totalProducts / productsPerPage);
-        const container = document.getElementById('pagination-container');
-        if (!container || totalPages <= 1) return;
-
-        container.innerHTML = Array.from({ length: totalPages }, (_, i) => `
-            <button onclick="changePage(${i + 1})" class="w-10 h-10 rounded-lg font-bold transition-all ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}">
-                ${i + 1}
-            </button>
-        `).join('');
-    };
-
-    window.changePage = (page) => {
-        currentPage = page;
-        renderProducts();
-        window.scrollTo({ top: document.getElementById('product-grid-section').offsetTop - 100, behavior: 'smooth' });
-    };
-
-    // --- 5. Checkout WhatsApp ---
-    checkoutBtn?.addEventListener('click', () => {
+    checkoutBtn.addEventListener('click', () => {
         if (cart.length === 0) return alert("Carrinho vazio!");
-        const numeroZap = "5511985878638";
-        let mensagem = "🚀 *NOVO PEDIDO - AW TECHNOLOGY*\n\n";
-        let total = 0;
-        cart.forEach(item => {
-            mensagem += `📦 *${item.name}*\n`;
-            total += (Number(item.price) || 0);
-        });
-        mensagem += `\n💰 *TOTAL: R$ ${total.toLocaleString('pt-br')}*`;
-        window.open(`https://wa.me/${numeroZap}?text=${encodeURIComponent(mensagem)}`, '_blank');
-        cart = [];
-        updateCartUI();
-        toggleCart();
+
+        let msg = "Pedido:\n";
+        cart.forEach(i => msg += i.name + "\n");
+
+        window.open(`https://wa.me/5511985878638?text=${encodeURIComponent(msg)}`);
     });
 
-    // --- 6. Event Listeners UI Mobile ---
-    cartBtn?.addEventListener('click', toggleCart);
-    cartBtnMobileTrigger?.addEventListener('click', toggleCart);
-    closeCart?.addEventListener('click', toggleCart);
-    menuOverlay?.addEventListener('click', () => {
-        cartSidebar?.classList.add('translate-x-full');
-        mobileMenu?.classList.add('translate-x-full');
-        menuOverlay?.classList.add('hidden');
-        document.body.classList.remove('no-scroll');
-    });
+    cartBtn.addEventListener('click', toggleCart);
+    cartBtnMobileTrigger.addEventListener('click', toggleCart);
+    closeCart.addEventListener('click', toggleCart);
 
-    const menuBtn = document.getElementById('menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const closeMenu = document.getElementById('close-btn');
-
-    menuBtn?.addEventListener('click', () => {
-        mobileMenu?.classList.remove('translate-x-full');
-        menuOverlay?.classList.remove('hidden');
-        document.body.classList.add('no-scroll');
-    });
-
-    closeMenu?.addEventListener('click', () => {
-        mobileMenu?.classList.add('translate-x-full');
-        menuOverlay?.classList.add('hidden');
-        document.body.classList.remove('no-scroll');
-    });
-
-    function initScrollReveal() {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('opacity-100', 'translate-y-0');
-                    entry.target.classList.remove('opacity-0', 'translate-y-4');
-                }
-            });
-        }, { threshold: 0.1 });
-        
-        document.querySelectorAll('.card-premium').forEach(card => {
-            card.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-700');
-            observer.observe(card);
-        });
-    }
-
-    checkAdminVisibility();
     renderProducts();
     updateCartUI();
+    checkAdminVisibility();
 });
