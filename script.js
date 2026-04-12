@@ -1,3 +1,8 @@
+// --- 0. Funções Globais (Fora do DOMContentLoaded para funcionar no Desktop) ---
+window.socialDemo = (rede) => {
+    alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente.`);
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- Referências de UI ---
     const productGrid = document.getElementById('product-grid');
@@ -22,11 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileMenu = document.getElementById('mobile-menu');
     const closeMenu = document.getElementById('close-btn');
 
-    // --- 0. Funções de Auxílio (RESTAURADAS) ---
-    window.socialDemo = (rede) => {
-        alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente.`);
-    };
-
+    // --- 1. Lógica Administrativa ---
     const checkAdminVisibility = () => {
         const isAdmin = localStorage.getItem('aw_admin_auth') === 'true';
         document.querySelectorAll('.admin-only').forEach(el => {
@@ -44,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 1. Banco de Dados ---
+    // --- 2. Banco de Dados ---
     const loadProducts = () => {
         const defaultProducts = [
             { id: 101, name: "HD WD Purple Surveillance 6TB 3.5\"", price: 1229, image: "https://m.media-amazon.com/images/I/71Od7Xf5SwL._AC_UL320_.jpg", description: "Engenharia de elite: componente selecionado pela AW TECHNOLOGY para eliminar gargalos." },
@@ -67,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&q=80&w=400", description: "Experiência de digitação única para setups high-end." }
         ];
 
-        const CURRENT_VERSION = "16.0"; 
+        const CURRENT_VERSION = "17.0"; // Incrementado para resetar o cache local
         const savedVersion = localStorage.getItem('aw_db_version');
 
         if (savedVersion !== CURRENT_VERSION) {
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
 
-    // --- 2. Lógica do Carrinho ---
+    // --- 3. Lógica do Carrinho ---
     const updateCartUI = () => {
         cartCountElements.forEach(el => { if (el) el.innerText = cart.length; });
         localStorage.setItem('aw_cart', JSON.stringify(cart));
@@ -104,9 +105,13 @@ document.addEventListener('DOMContentLoaded', () => {
         cartItemsContainer.innerHTML = cart.map((item, index) => {
             const price = Number(item.price) || 0;
             total += price;
+            // Aplicando proxy no carrinho também
+            const isAmazon = item.image.includes('amazon') || item.image.includes('media-amazon');
+            const thumbImg = isAmazon ? `https://images.weserv.nl/?url=${encodeURIComponent(item.image)}&w=100&fit=contain` : item.image;
+
             return `
                 <div class="flex items-center gap-3 bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-                    <img src="${item.image}" class="w-14 h-14 rounded-lg object-contain bg-white p-1" onerror="this.src='https://placehold.co/100x100/1f2937/white?text=IMG'">
+                    <img src="${thumbImg}" class="w-14 h-14 rounded-lg object-contain bg-white p-1" onerror="this.src='https://placehold.co/100x100/1f2937/white?text=IMG'">
                     <div class="flex-1 min-w-0">
                         <h4 class="text-xs font-bold truncate">${item.name}</h4>
                         <p class="text-blue-400 font-bold text-sm">R$ ${price.toLocaleString('pt-br')}</p>
@@ -141,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.toggle('no-scroll');
     };
 
-    // --- 3. Renderização de Produtos (LÓGICA DE IMAGEM ROBUSTA) ---
+    // --- 4. Renderização de Produtos ---
     const renderProducts = () => {
         if (!productGrid) return;
         const products = loadProducts();
@@ -150,10 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentProducts = products.slice(start, end);
 
         productGrid.innerHTML = currentProducts.map(p => {
-            // Se for imagem da Amazon, usamos o proxy Weserv para pular o bloqueio. 
-            // Se for Unsplash ou outra, carregamos direto.
             const isAmazon = p.image.includes('amazon') || p.image.includes('media-amazon');
-            const displayImage = isAmazon ? `https://images.weserv.nl/?url=${encodeURIComponent(p.image)}&w=400&fit=contain` : p.image;
+            const displayImage = isAmazon ? `https://images.weserv.nl/?url=${encodeURIComponent(p.image)}&w=500&fit=contain` : p.image;
 
             return `
             <div class="card-premium bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col h-full group">
@@ -196,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (section) window.scrollTo({ top: section.offsetTop - 100, behavior: 'smooth' });
     };
 
-    // --- 4. Eventos ---
+    // --- 5. Eventos e Inicialização ---
     cartBtn?.addEventListener('click', toggleCart);
     cartBtnMobileTrigger?.addEventListener('click', toggleCart);
     closeCart?.addEventListener('click', toggleCart);
@@ -219,7 +222,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     checkoutBtn?.addEventListener('click', () => {
         if (cart.length === 0) return alert("Carrinho vazio!");
-        const msg = encodeURIComponent(`🚀 *NOVO PEDIDO - AW TECHNOLOGY*\n\n${cart.map(i => `📦 *${i.name}*`).join('\n')}\n\n💰 *TOTAL: R$ ${cart.reduce((a,b) => a + Number(b.price), 0).toLocaleString('pt-br')}*`);
+        const totalValue = cart.reduce((a, b) => a + Number(b.price), 0).toLocaleString('pt-br');
+        const msg = encodeURIComponent(`🚀 *NOVO PEDIDO - AW TECHNOLOGY*\n\n${cart.map(i => `📦 *${i.name}*`).join('\n')}\n\n💰 *TOTAL: R$ ${totalValue}*`);
         window.open(`https://wa.me/5511985878638?text=${msg}`, '_blank');
     });
 
@@ -238,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Inicialização
     checkAdminVisibility();
     renderProducts();
     updateCartUI();
