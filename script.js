@@ -1,4 +1,9 @@
-// --- 0. Funções Globais (Fora do DOMContentLoaded para funcionar no Desktop) ---
+/**
+ * AW TECHNOLOGY - SCRIPT LOCALHOST CORRIGIDO
+ * Ajustes: Globalização de funções e Proxy de Imagens
+ */
+
+// --- 0. Sistema de Proteção e Atalho ADM (FORA DO DOM PARA ESCOPO GLOBAL) ---
 window.socialDemo = (rede) => {
     alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente.`);
 };
@@ -10,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('cart-count'), 
         document.getElementById('cart-count-mobile'),
         document.getElementById('cart-count-mobile-trigger')
-    ].filter(el => el !== null); 
+    ];
     
     let currentPage = 1;
     const productsPerPage = 9;
@@ -23,11 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartTotalElement = document.getElementById('cart-total');
     const checkoutBtn = document.getElementById('checkout-btn');
     const menuOverlay = document.getElementById('menu-overlay');
-    const menuBtn = document.getElementById('menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const closeMenu = document.getElementById('close-btn');
 
-    // --- 1. Lógica Administrativa ---
     const checkAdminVisibility = () => {
         const isAdmin = localStorage.getItem('aw_admin_auth') === 'true';
         document.querySelectorAll('.admin-only').forEach(el => {
@@ -45,10 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. Banco de Dados ---
+    // --- 1. Banco de Dados AW TECHNOLOGY (Com Proxy de Imagem) ---
     const loadProducts = () => {
         const defaultProducts = [
-            { id: 101, name: "HD WD Purple Surveillance 6TB 3.5\"", price: 1229, image: "https://m.media-amazon.com/images/I/71Od7Xf5SwL._AC_UL320_.jpg", description: "Engenharia de elite: componente selecionado pela AW TECHNOLOGY para eliminar gargalos." },
+            { id: 101, name: "HD WD Purple Surveillance 6TB 3.5\"", price: 1229, image: "https://m.media-amazon.com/images/I/81S2Wb17P4L._AC_SL1500_.jpg", description: "Engenharia de elite: componente selecionado pela AW TECHNOLOGY para eliminar gargalos." },
             { id: 102, name: "Placa de Vídeo Inno3d RTX 5070", price: 6300, image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=400", description: "Desempenho de próxima geração para setups de ultra-performance." },
             { id: 103, name: "Kit Upgrade i9-14900K + B760M", price: 5200, image: "https://images.unsplash.com/photo-1591405351990-4726e33df58d?auto=format&fit=crop&q=80&w=400", description: "O coração do seu setup. Máximo poder de processamento." },
             { id: 104, name: "HD Externo Expansion Seagate 4TB", price: 1300, image: "https://m.media-amazon.com/images/I/81tjLksKixL._AC_SL1500_.jpg", description: "Espaço de sobra para seus projetos e games." },
@@ -68,30 +69,26 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&q=80&w=400", description: "Experiência de digitação única para setups high-end." }
         ];
 
-        const CURRENT_VERSION = "17.0"; // Incrementado para resetar o cache local
+        // SINCRONIZAÇÃO: Subi para 3.0 para forçar a limpeza do cache de imagens ruins
+        const DB_VERSION = "3.0"; 
         const savedVersion = localStorage.getItem('aw_db_version');
 
-        if (savedVersion !== CURRENT_VERSION) {
+        if (savedVersion !== DB_VERSION) {
             localStorage.setItem('aw_products', JSON.stringify(defaultProducts));
-            localStorage.setItem('aw_db_version', CURRENT_VERSION);
+            localStorage.setItem('aw_db_version', DB_VERSION);
             return defaultProducts;
         }
-
-        try {
-            const saved = localStorage.getItem('aw_products');
-            return saved ? JSON.parse(saved) : defaultProducts;
-        } catch (e) {
-            return defaultProducts;
-        }
+        return JSON.parse(localStorage.getItem('aw_products')) || defaultProducts;
     };
 
     let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
 
-    // --- 3. Lógica do Carrinho ---
-    const updateCartUI = () => {
-        cartCountElements.forEach(el => { if (el) el.innerText = cart.length; });
-        localStorage.setItem('aw_cart', JSON.stringify(cart));
-        renderCartItems();
+    // --- 2. Interface do Carrinho ---
+    const toggleCart = () => {
+        if (!cartSidebar) return;
+        cartSidebar.classList.toggle('translate-x-full');
+        menuOverlay?.classList.toggle('hidden');
+        document.body.classList.toggle('no-scroll');
     };
 
     const renderCartItems = () => {
@@ -105,13 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
         cartItemsContainer.innerHTML = cart.map((item, index) => {
             const price = Number(item.price) || 0;
             total += price;
-            // Aplicando proxy no carrinho também
-            const isAmazon = item.image.includes('amazon') || item.image.includes('media-amazon');
-            const thumbImg = isAmazon ? `https://images.weserv.nl/?url=${encodeURIComponent(item.image)}&w=100&fit=contain` : item.image;
-
             return `
                 <div class="flex items-center gap-3 bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-                    <img src="${thumbImg}" class="w-14 h-14 rounded-lg object-contain bg-white p-1" onerror="this.src='https://placehold.co/100x100/1f2937/white?text=IMG'">
+                    <img src="${item.image}" class="w-14 h-14 rounded-lg object-contain bg-white">
                     <div class="flex-1 min-w-0">
                         <h4 class="text-xs font-bold truncate">${item.name}</h4>
                         <p class="text-blue-400 font-bold text-sm">R$ ${price.toLocaleString('pt-br')}</p>
@@ -125,13 +118,19 @@ document.addEventListener('DOMContentLoaded', () => {
         cartTotalElement.innerText = `R$ ${total.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`;
     };
 
+    const updateCartUI = () => {
+        cartCountElements.forEach(el => { if (el) el.innerText = cart.length; });
+        localStorage.setItem('aw_cart', JSON.stringify(cart));
+        renderCartItems();
+    };
+
     window.addToCart = (id) => {
         const products = loadProducts();
         const product = products.find(p => p.id == id);
         if (product) {
             cart.push(product);
             updateCartUI();
-            if (cartSidebar && cartSidebar.classList.contains('translate-x-full')) toggleCart();
+            if (cartSidebar?.classList.contains('translate-x-full')) toggleCart();
         }
     };
 
@@ -140,70 +139,87 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCartUI();
     };
 
-    const toggleCart = () => {
-        if (cartSidebar) cartSidebar.classList.toggle('translate-x-full');
-        if (menuOverlay) menuOverlay.classList.toggle('hidden');
-        document.body.classList.toggle('no-scroll');
-    };
-
-    // --- 4. Renderização de Produtos ---
+    // --- 4. Renderização Responsiva ---
     const renderProducts = () => {
         if (!productGrid) return;
         const products = loadProducts();
-        const start = (currentPage - 1) * productsPerPage;
-        const end = start + productsPerPage;
-        const currentProducts = products.slice(start, end);
+        const indexOfLastProduct = currentPage * productsPerPage;
+        const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+        const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
-        productGrid.innerHTML = currentProducts.map(p => {
-            const isAmazon = p.image.includes('amazon') || p.image.includes('media-amazon');
-            const displayImage = isAmazon ? `https://images.weserv.nl/?url=${encodeURIComponent(p.image)}&w=500&fit=contain` : p.image;
+        productGrid.innerHTML = currentProducts.map(product => {
+            // Lógica para contornar o bloqueio de imagem da Amazon
+            const isAmazon = product.image.includes('amazon') || product.image.includes('media-amazon');
+            const displayImage = isAmazon ? `https://images.weserv.nl/?url=${encodeURIComponent(product.image)}&w=400&fit=contain` : product.image;
 
             return `
             <div class="card-premium bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col h-full group">
                 <div class="product-img-container rounded-xl mb-4 relative overflow-hidden bg-white">
-                    <img 
-                        src="${displayImage}" 
-                        loading="eager"
-                        class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500" 
-                        onerror="this.onerror=null;this.src='https://placehold.co/400x400/1f2937/white?text=AW+TECH';"
-                    >
+                    <img src="${displayImage}" 
+                         alt="${product.name}" 
+                         class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500"
+                         onerror="this.src='https://placehold.co/400x400/1f2937/white?text=Hardware+Elite'">
                 </div>
-                <h4 class="text-lg font-bold mb-2 min-h-[3rem] line-clamp-2">${p.name}</h4>
-                <p class="text-gray-400 text-xs mb-4 line-clamp-3 flex-grow">${p.description}</p>
+                <h4 class="text-lg font-bold mb-2 leading-tight min-h-[3rem]">${product.name}</h4>
+                <p class="text-gray-400 text-xs mb-4 leading-relaxed line-clamp-3 flex-grow">${product.description}</p>
                 <div class="flex flex-col gap-3 mt-auto pt-4 border-t border-gray-700/50">
-                    <span class="text-xl font-black text-blue-400">R$ ${Number(p.price).toLocaleString('pt-br', { minimumFractionDigits: 2 })}</span>
-                    <button onclick="addToCart(${p.id})" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95">
+                    <span class="text-xl font-black text-blue-400">R$ ${Number(product.price).toLocaleString('pt-br', { minimumFractionDigits: 2 })}</span>
+                    <button onclick="addToCart(${product.id})" 
+                            class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95">
                         Adicionar ao Carrinho
                     </button>
                 </div>
             </div>
         `}).join('');
 
-        renderPagination(products.length);
+        renderPaginationControls(products.length);
         initScrollReveal();
     };
 
-    const renderPagination = (total) => {
-        const pages = Math.ceil(total / productsPerPage);
+    const renderPaginationControls = (totalProducts) => {
+        const totalPages = Math.ceil(totalProducts / productsPerPage);
         const container = document.getElementById('pagination-container');
-        if (!container) return;
-        container.innerHTML = pages > 1 ? Array.from({ length: pages }, (_, i) => `
-            <button onclick="changePage(${i + 1})" class="w-10 h-10 rounded-lg font-bold transition-all ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}">${i+1}</button>
+        if (!container || totalPages <= 1) return;
+
+        container.innerHTML = Array.from({ length: totalPages }, (_, i) => `
+            <button onclick="changePage(${i + 1})" class="w-10 h-10 rounded-lg font-bold transition-all ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}">
+                ${i + 1}
+            </button>
         `).join('') : '';
     };
 
     window.changePage = (page) => {
         currentPage = page;
         renderProducts();
-        const section = document.getElementById('product-grid-section');
-        if (section) window.scrollTo({ top: section.offsetTop - 100, behavior: 'smooth' });
+        window.scrollTo({ top: document.getElementById('product-grid-section').offsetTop - 100, behavior: 'smooth' });
     };
 
-    // --- 5. Eventos e Inicialização ---
+    // --- 5. Checkout WhatsApp ---
+    checkoutBtn?.addEventListener('click', () => {
+        if (cart.length === 0) return alert("Carrinho vazio!");
+        const numeroZap = "5511985878638";
+        let mensagem = "🚀 *NOVO PEDIDO - AW TECHNOLOGY*\n\n";
+        let total = 0;
+        cart.forEach(item => {
+            mensagem += `📦 *${item.name}*\n`;
+            total += (Number(item.price) || 0);
+        });
+        mensagem += `\n💰 *TOTAL: R$ ${total.toLocaleString('pt-br')}*`;
+        window.open(`https://wa.me/${numeroZap}?text=${encodeURIComponent(mensagem)}`, '_blank');
+        cart = [];
+        updateCartUI();
+        toggleCart();
+    });
+
+    // --- 6. Event Listeners UI ---
     cartBtn?.addEventListener('click', toggleCart);
     cartBtnMobileTrigger?.addEventListener('click', toggleCart);
     closeCart?.addEventListener('click', toggleCart);
     
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const closeMenu = document.getElementById('close-btn');
+
     menuBtn?.addEventListener('click', () => {
         mobileMenu?.classList.remove('translate-x-full');
         menuOverlay?.classList.remove('hidden');
@@ -212,20 +228,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeAll = () => {
         mobileMenu?.classList.add('translate-x-full');
-        cartSidebar?.classList.add('translate-x-full');
+        if(cartSidebar) cartSidebar.classList.add('translate-x-full');
         menuOverlay?.classList.add('hidden');
         document.body.classList.remove('no-scroll');
     };
 
     closeMenu?.addEventListener('click', closeAll);
     menuOverlay?.addEventListener('click', closeAll);
-
-    checkoutBtn?.addEventListener('click', () => {
-        if (cart.length === 0) return alert("Carrinho vazio!");
-        const totalValue = cart.reduce((a, b) => a + Number(b.price), 0).toLocaleString('pt-br');
-        const msg = encodeURIComponent(`🚀 *NOVO PEDIDO - AW TECHNOLOGY*\n\n${cart.map(i => `📦 *${i.name}*`).join('\n')}\n\n💰 *TOTAL: R$ ${totalValue}*`);
-        window.open(`https://wa.me/5511985878638?text=${msg}`, '_blank');
-    });
 
     function initScrollReveal() {
         const observer = new IntersectionObserver((entries) => {
@@ -236,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }, { threshold: 0.1 });
+        
         document.querySelectorAll('.card-premium').forEach(card => {
             card.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-700');
             observer.observe(card);
