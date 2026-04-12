@@ -16,12 +16,12 @@ const modal = document.getElementById('modal');
 
 // --- RENDER ---
 function renderProducts() {
-    if (!productList) return; // 🔥 evita quebra
+    if (!productList) return;
 
     if (products.length === 0) {
         productList.innerHTML = `
             <tr>
-                <td colspan="3" class="text-center p-6 text-gray-500">
+                <td colspan="3" class="text-center p-4 text-gray-500">
                     Nenhum produto cadastrado
                 </td>
             </tr>
@@ -32,7 +32,7 @@ function renderProducts() {
     productList.innerHTML = products.map(p => `
         <tr class="border-b border-gray-700">
             <td class="p-4 flex items-center gap-3">
-                <img src="${p.image}" class="w-12 h-12 object-cover rounded"
+                <img src="${p.image}" class="w-12 h-12 rounded object-cover"
                      onerror="this.src='https://placehold.co/100x100?text=Erro'">
                 <div>
                     <b>${p.name}</b><br>
@@ -60,6 +60,7 @@ window.openModal = () => {
 
     modal.classList.remove('hidden');
     modal.classList.add('flex');
+
     productForm.reset();
     document.getElementById('product-id').value = '';
 };
@@ -82,7 +83,7 @@ if (productForm) {
         let image = document.getElementById('image').value.trim();
         const description = document.getElementById('description').value;
 
-        // 🔥 CORREÇÃO MOBILE (ESSENCIAL)
+        // 🔥 CORREÇÃO MOBILE
         if (!image || !image.startsWith('http')) {
             image = "https://placehold.co/400x400/1f2937/white?text=AW+TECH";
         }
@@ -110,7 +111,7 @@ if (productForm) {
 // --- EDITAR ---
 window.editProduct = (id) => {
     const p = products.find(p => p.id == id);
-    if (!p) return; // 🔥 evita erro
+    if (!p) return;
 
     document.getElementById('product-id').value = p.id;
     document.getElementById('name').value = p.name;
