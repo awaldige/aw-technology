@@ -1,5 +1,5 @@
-/** * AW TECHNOLOGY - VERCEL STABLE v10.1
- * UPDATE: Supabase Sync + Image Handling + Layout Stability
+/** * AW TECHNOLOGY - VERCEL STABLE v11.0
+ * UPDATE: Supabase Sync + Post-Checkout Cart Clearance
  */
 
 // 1. CONFIGURAÇÃO SUPABASE
@@ -11,6 +11,7 @@ const sb = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // 2. ESTADO GLOBAL
 let products = []; 
+// Ajustado para 'aw_cart' conforme definido no início e no salvamento
 let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
 let currentPage = 1;
 const productsPerPage = 9;
@@ -22,7 +23,7 @@ async function loadProducts() {
         const { data, error } = await sb
             .from('products')
             .select('*')
-            .order('id', { ascending: false }); // Mostrar os novos primeiro
+            .order('id', { ascending: false });
 
         if (error) throw error;
 
@@ -41,7 +42,6 @@ window.renderProducts = () => {
     const productGrid = document.getElementById('product-grid');
     if (!productGrid) return;
 
-    // Fix do Footer: mantém o espaço mínimo enquanto renderiza
     productGrid.style.minHeight = '500px';
 
     if (products.length === 0) {
@@ -53,7 +53,6 @@ window.renderProducts = () => {
     const items = products.slice(start, start + productsPerPage);
 
     const htmlContent = items.map(p => {
-        // Fallback de imagem caso o link esteja quebrado ou vazio
         const validImage = p.image && p.image.trim() !== '' ? p.image : 'https://placehold.co/400x400/1f2937/white?text=Hardware';
         
         return `
@@ -170,11 +169,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('close-cart')?.addEventListener('click', () => toggle(cartSidebar, false));
     overlay?.addEventListener('click', () => { toggle(mobileMenu, false); toggle(cartSidebar, false); });
 
+    // BOTÃO FINALIZAR PEDIDO (CHECKOUT)
     document.getElementById('checkout-btn')?.addEventListener('click', () => {
         if (!cart.length) return alert("Carrinho vazio!");
+
+        // 1. Prepara a Mensagem
         const total = cart.reduce((acc, i) => acc + (Number(i.price) || 0), 0);
-        const msg = `Olá! Gostaria de encomendar:\n\n${cart.map(i => `• ${i.name}`).join('\n')}\n\n*Total: R$ ${total.toLocaleString('pt-br')}*`;
+        const msg = `Olá! Gostaria de encomendar:\n\n${cart.map(i => `• ${i.name}`).join('\n')}\n\n*Total: R$ ${total.toLocaleString('pt-br', {minimumFractionDigits: 2})}*`;
+        
+        // 2. Abre o WhatsApp
         window.open(`https://wa.me/5511985878638?text=${encodeURIComponent(msg)}`, '_blank');
+
+        // 3. LIMPEZA DO CARRINHO (Após o pedido enviado)
+        cart = []; // Esvazia o array local
+        localStorage.removeItem('aw_cart'); // Remove do armazenamento permanente
+        
+        // 4. ATUALIZAÇÃO DA INTERFACE
+        window.updateUI(); // Reseta contador e lista visual
+        toggle(cartSidebar, false); // Fecha a barra lateral do carrinho
+        
+        console.log("Pedido processado: Carrinho limpo.");
     });
 
     window.updateUI();
