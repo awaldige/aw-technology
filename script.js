@@ -1,17 +1,16 @@
 /** * AW TECHNOLOGY - VERCEL STABLE v9.0
- * UPDATE: Integração com Supabase (Nuvem) + Sincronização Global Realtime
+ * UPDATE: Integração com Supabase (Nuvem) + Prevenção de conflito de variáveis
  */
 
-// 1. CONFIGURAÇÃO SUPABASE
 // 1. CONFIGURAÇÃO SUPABASE
 const supabaseUrl = 'https://jlfjlzogrmsolgwisuvs.supabase.co'; 
 const supabaseKey = 'sb_publishable_0J6zv-geHQnKUkL9AzCrNQ_BN7tCTTr';
 
-// CORREÇÃO: Usar window.supabase em vez de supabasejs
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+// Usamos 'sb' para evitar o erro "Identifier already been declared"
+const sb = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // 2. ESTADO GLOBAL
-let products = []; // Agora alimentado pela nuvem
+let products = []; 
 let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
 let currentPage = 1;
 const productsPerPage = 9;
@@ -19,18 +18,17 @@ const productsPerPage = 9;
 // 3. FUNÇÕES DE DADOS (SUPABASE)
 async function loadProducts() {
     try {
-        const { data, error } = await supabase
+        const { data, error } = await sb
             .from('products')
             .select('*')
             .order('id', { ascending: true });
 
         if (error) throw error;
 
-        products = data;
+        products = data || [];
         window.renderProducts();
     } catch (err) {
         console.error("Erro ao carregar banco de dados:", err.message);
-        // Fallback: se o banco falhar, você pode opcionalmente carregar uma lista local aqui
     }
 }
 
@@ -42,10 +40,7 @@ window.renderProducts = () => {
     const start = (currentPage - 1) * productsPerPage;
     const items = products.slice(start, start + productsPerPage);
 
-    productGrid.innerHTML = items.map(p => {
-        // Removemos o proxy weserv para evitar conflitos com imagens protegidas (como as do ML)
-        // e usamos carregamento nativo com fallback
-        return `
+    productGrid.innerHTML = items.map(p => `
         <div class="card-premium bg-gray-800/40 p-5 rounded-2xl border border-gray-800 flex flex-col h-full group">
             <div class="product-img-container mb-5 flex items-center justify-center overflow-hidden rounded-xl bg-white/5 h-48">
                 <img src="${p.image}" alt="${p.name}" 
@@ -60,8 +55,7 @@ window.renderProducts = () => {
                     Adicionar
                 </button>
             </div>
-        </div>`;
-    }).join('');
+        </div>`).join('');
     window.renderPagination();
 };
 
@@ -107,7 +101,7 @@ window.removeFromCart = (i) => {
 
 window.updateUI = () => {
     document.querySelectorAll('#cart-count, #cart-count-mobile').forEach(c => c.innerText = cart.length);
-    const total = cart.reduce((acc, i) => acc + i.price, 0);
+    const total = cart.reduce((acc, i) => acc + (Number(i.price) || 0), 0);
     const totalEl = document.getElementById('cart-total');
     if (totalEl) totalEl.innerText = `R$ ${total.toLocaleString('pt-br', {minimumFractionDigits: 2})}`;
 
@@ -118,7 +112,7 @@ window.updateUI = () => {
                 <img src="${item.image}" class="w-12 h-12 object-contain bg-white/10 rounded-lg" onerror="this.src='https://placehold.co/100?text=IMG'">
                 <div class="flex-1 min-w-0">
                     <p class="text-[11px] font-bold text-white truncate">${item.name}</p>
-                    <p class="text-blue-400 text-xs font-bold">R$ ${item.price.toLocaleString('pt-br', {minimumFractionDigits: 2})}</p>
+                    <p class="text-blue-400 text-xs font-bold">R$ ${Number(item.price).toLocaleString('pt-br', {minimumFractionDigits: 2})}</p>
                 </div>
                 <button onclick="removeFromCart(${i})" class="text-gray-500 hover:text-red-500 p-2 transition-colors">✕</button>
             </div>`).join('') : '<p class="text-center text-gray-600 py-10 uppercase text-xs tracking-widest">Carrinho Vazio</p>';
@@ -127,10 +121,8 @@ window.updateUI = () => {
 
 // 5. INICIALIZAÇÃO
 document.addEventListener('DOMContentLoaded', () => {
-    // Carrega dados da nuvem
     loadProducts();
 
-    // UI Listeners
     if (localStorage.getItem('aw_admin_auth') === 'true') {
         document.body.classList.add('is-admin');
     }
@@ -153,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('close-cart')?.addEventListener('click', () => toggle(cartSidebar, false));
     overlay?.addEventListener('click', () => { toggle(mobileMenu, false); toggle(cartSidebar, false); });
 
-    // Admin Access
     let logoClicks = 0;
     document.getElementById('admin-logo')?.addEventListener('click', () => {
         logoClicks++;
@@ -168,10 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Checkout WhatsApp
     document.getElementById('checkout-btn')?.addEventListener('click', () => {
         if (!cart.length) return alert("Carrinho vazio!");
-        const total = cart.reduce((acc, i) => acc + i.price, 0);
+        const total = cart.reduce((acc, i) => acc + (Number(i.price) || 0), 0);
         const msg = `Olá! Gostaria de encomendar:\n\n${cart.map(i => `• ${i.name}`).join('\n')}\n\n*Total: R$ ${total.toLocaleString('pt-br')}*`;
         window.open(`https://wa.me/5511985878638?text=${encodeURIComponent(msg)}`, '_blank');
     });
