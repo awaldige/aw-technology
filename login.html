@@ -83,48 +83,55 @@
         const passInput = document.getElementById('admin-pass');
         const errorMsg = document.getElementById('error-msg');
 
-        // Alternar senha
+        // Alternar visibilidade da senha
         document.getElementById('toggle-pass').addEventListener('click', function() {
             const type = passInput.type === 'password' ? 'text' : 'password';
             passInput.type = type;
             this.classList.toggle('text-blue-500');
         });
 
-        // Função Unificada de Login
-        function performLogin(role) {
-            // Limpa sessões anteriores
+        // Função de Redirecionamento e Segurança
+        function performLogin(type) {
+            // Limpa qualquer resquício de sessões anteriores
             localStorage.removeItem('aw_admin_auth');
-            localStorage.removeItem('aw_auth_role');
+            localStorage.removeItem('aw_guest_demo');
 
-            // Define novas credenciais
-            localStorage.setItem('aw_admin_auth', 'true');
-            localStorage.setItem('aw_auth_role', role);
+            if (type === 'admin') {
+                localStorage.setItem('aw_admin_auth', 'true');
+            } else {
+                localStorage.setItem('aw_guest_demo', 'true');
+            }
 
-            // Redireciona
             window.location.href = 'admin.html';
         }
 
-        // Login Manual (Formulário)
+        // Login via Formulário (Senha Mestra ou Senha Convidado)
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const senha = passInput.value.trim();
-            const SENHA_MESTRA = 'awaldige785143';
-            const SENHA_DEMO = 'convidado123';
+            
+            // Suas senhas configuradas
+            const SENHA_MESTRA = 'awaldige785143'; 
+            const SENHA_DEMO = '780606'; // Usando a senha que você costuma usar para demos
 
             if (senha === SENHA_MESTRA) {
                 performLogin('admin');
             } else if (senha === SENHA_DEMO) {
                 performLogin('guest');
             } else {
-                errorMsg.classList.remove('hidden');
-                passInput.value = '';
-                setTimeout(() => errorMsg.classList.add('hidden'), 3000);
+                showError();
             }
         });
 
-        // Login via Botão Convidado
+        // Login Direto pelo Botão de Convidado
         function loginGuest() {
             performLogin('guest');
+        }
+
+        function showError() {
+            errorMsg.classList.remove('hidden');
+            passInput.value = '';
+            setTimeout(() => errorMsg.classList.add('hidden'), 3000);
         }
     </script>
 </body>
