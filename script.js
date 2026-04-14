@@ -1,8 +1,8 @@
-/** * AW TECHNOLOGY - VERCEL STABLE v8.6 
- * CORREÇÃO: Escopo Global para funções de renderização e carrinho
+/** * AW TECHNOLOGY - VERCEL STABLE v8.7
+ * FINAL: Escopo Global Seguro + Proteção de Erros de Scroll
  */
 
-// 1. DADOS E ESTADO (Escopo Global)
+// 1. ESTADO GLOBAL
 let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
 let currentPage = 1;
 const productsPerPage = 9;
@@ -28,11 +28,11 @@ const products = [
     { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=400", description: "Experiência de digitação única." }
 ];
 
-// 2. FUNÇÕES GLOBAIS (Chamadas pelo HTML)
+// 2. FUNÇÕES GLOBAIS
 window.renderProducts = () => {
     const productGrid = document.getElementById('product-grid');
     if (!productGrid) return;
-    
+
     const start = (currentPage - 1) * productsPerPage;
     const items = products.slice(start, start + productsPerPage);
 
@@ -50,7 +50,7 @@ window.renderProducts = () => {
                 </button>
             </div>
         </div>`).join('');
-    renderPagination();
+    window.renderPagination();
 };
 
 window.renderPagination = () => {
@@ -63,10 +63,11 @@ window.renderPagination = () => {
         </button>`).join('');
 };
 
-window.changePage = (p) => { 
-    currentPage = p; 
-    renderProducts(); 
-    window.scrollTo({top: document.getElementById('product-grid-section').offsetTop - 100, behavior: 'smooth'}); 
+window.changePage = (p) => {
+    currentPage = p;
+    window.renderProducts();
+    const section = document.getElementById('product-grid-section') || document.getElementById('product-grid');
+    if (section) window.scrollTo({ top: section.offsetTop - 100, behavior: 'smooth' });
 };
 
 window.addToCart = (id) => {
@@ -74,18 +75,22 @@ window.addToCart = (id) => {
     if (item) {
         cart.push(item);
         localStorage.setItem('aw_cart', JSON.stringify(cart));
-        updateUI();
-        // Abre o carrinho automaticamente
-        document.getElementById('cart-sidebar')?.classList.remove('translate-x-full');
-        document.getElementById('menu-overlay').style.opacity = '1';
-        document.getElementById('menu-overlay').style.pointerEvents = 'auto';
+        window.updateUI();
+        // Feedback visual: Abre o carrinho
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const overlay = document.getElementById('menu-overlay');
+        if (cartSidebar) cartSidebar.classList.remove('translate-x-full');
+        if (overlay) {
+            overlay.style.opacity = '1';
+            overlay.style.pointerEvents = 'auto';
+        }
     }
 };
 
 window.removeFromCart = (i) => {
     cart.splice(i, 1);
     localStorage.setItem('aw_cart', JSON.stringify(cart));
-    updateUI();
+    window.updateUI();
 };
 
 window.updateUI = () => {
@@ -93,7 +98,7 @@ window.updateUI = () => {
     const total = cart.reduce((acc, i) => acc + i.price, 0);
     const totalEl = document.getElementById('cart-total');
     if (totalEl) totalEl.innerText = `R$ ${total.toLocaleString('pt-br')}`;
-    
+
     const container = document.getElementById('cart-items');
     if (container) {
         container.innerHTML = cart.length ? cart.map((item, i) => `
@@ -108,27 +113,26 @@ window.updateUI = () => {
     }
 };
 
-// 3. LÓGICA DO DOM (Elementos que precisam carregar primeiro)
+// 3. INICIALIZAÇÃO DO DOM
 document.addEventListener('DOMContentLoaded', () => {
-    
-    const checkAuth = () => {
-        if (localStorage.getItem('aw_admin_auth') === 'true') {
-            document.body.classList.add('is-admin');
-        }
-    };
-    checkAuth();
+    // Auth Check
+    if (localStorage.getItem('aw_admin_auth') === 'true') {
+        document.body.classList.add('is-admin');
+    }
 
-    // Controles de Menu e Carrinho
+    // Seletores de UI
     const overlay = document.getElementById('menu-overlay');
     const mobileMenu = document.getElementById('mobile-menu');
     const cartSidebar = document.getElementById('cart-sidebar');
 
     const toggle = (el, isOpen) => {
+        if (!el || !overlay) return;
         el.classList.toggle('translate-x-full', !isOpen);
         overlay.style.opacity = isOpen ? '1' : '0';
         overlay.style.pointerEvents = isOpen ? 'auto' : 'none';
     };
 
+    // Event Listeners Dinâmicos
     document.getElementById('menu-btn')?.addEventListener('click', () => toggle(mobileMenu, true));
     document.getElementById('close-btn')?.addEventListener('click', () => toggle(mobileMenu, false));
     document.getElementById('cart-btn')?.addEventListener('click', () => toggle(cartSidebar, true));
@@ -136,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('close-cart')?.addEventListener('click', () => toggle(cartSidebar, false));
     overlay?.addEventListener('click', () => { toggle(mobileMenu, false); toggle(cartSidebar, false); });
 
-    // Easter Egg Logo
+    // Easter Egg
     let logoClicks = 0;
     document.getElementById('admin-logo')?.addEventListener('click', () => {
         logoClicks++;
@@ -151,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Checkout WhatsApp
+    // WhatsApp Checkout
     document.getElementById('checkout-btn')?.addEventListener('click', () => {
         if (!cart.length) return alert("Carrinho vazio!");
         const total = cart.reduce((acc, i) => acc + i.price, 0);
@@ -159,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(`https://wa.me/5511985878638?text=${encodeURIComponent(msg)}`, '_blank');
     });
 
-    // Inicialização
-    renderProducts();
-    updateUI();
+    // Início
+    window.renderProducts();
+    window.updateUI();
 });
