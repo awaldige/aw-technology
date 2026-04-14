@@ -3,8 +3,8 @@
  */
 
 // 1. CONFIGURAÇÃO SUPABASE
-const supabaseUrl = 'aw-technology-db';
-const supabaseKey = 'jlfjlzogrmsolgwisuvs';
+const supabaseUrl = 'https://jlfjlzogrmsolgwisuvs.supabase.coCopy';
+const supabaseKey = 'sb_publishable_0J6zv-geHQnKUkL9AzCrNQ_BN7tCTTr';
 const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
 
 // 2. ESTADO GLOBAL
