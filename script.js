@@ -3,7 +3,7 @@
  */
 
 // 1. CONFIGURAÇÃO SUPABASE
-const supabaseUrl = 'https://jlfjlzogrmsolgwisuvs.supabase.coCopy';
+const supabaseUrl = 'https://jlfjlzogrmsolgwisuvs.supabase.co';
 const supabaseKey = 'sb_publishable_0J6zv-geHQnKUkL9AzCrNQ_BN7tCTTr';
 const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
 
