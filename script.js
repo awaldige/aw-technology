@@ -1,39 +1,37 @@
-/** * AW TECHNOLOGY - VERCEL STABLE v8.8
- * UPDATE: Sincronização Dinâmica com Painel ADM + Fallback Seguro
+/** * AW TECHNOLOGY - VERCEL STABLE v9.0
+ * UPDATE: Integração com Supabase (Nuvem) + Sincronização Global Realtime
  */
 
-// 1. ESTADO GLOBAL
+// 1. CONFIGURAÇÃO SUPABASE
+const supabaseUrl = 'aw-technology-db';
+const supabaseKey = 'jlfjlzogrmsolgwisuvs';
+const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
+
+// 2. ESTADO GLOBAL
+let products = []; // Agora alimentado pela nuvem
 let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
 let currentPage = 1;
 const productsPerPage = 9;
 
-// Lista Padrão (Fallback) caso o localStorage esteja vazio
-const defaultProducts = [
-    { id: 101, name: "HD WD Purple Surveillance 6TB", price: 1229, image: "https://m.media-amazon.com/images/I/81S2Wb17P4L._AC_SL1500_.jpg", description: "Engenharia de elite para sistemas de segurança." },
-    { id: 102, name: "Placa de Vídeo Inno3d RTX 5070", price: 6300, image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400", description: "Desempenho de próxima geração." },
-    { id: 103, name: "Kit Upgrade i9-14900K + B760M", price: 5200, image: "https://images.unsplash.com/photo-1591405351990-4726e33df58d?w=400", description: "O coração do seu setup." },
-    { id: 104, name: "HD Externo Seagate 4TB", price: 1300, image: "https://m.media-amazon.com/images/I/81tjLksKixL._AC_SL1500_.jpg", description: "Espaço de sobra para seus projetos." },
-    { id: 105, name: "ASUS ROG Strix RTX 4090", price: 13350, image: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400", description: "A rainha das GPUs." },
-    { id: 106, name: "MSI Gaming Slim RTX 4070 Ti Super", price: 8200, image: "https://m.media-amazon.com/images/I/71R2oIsc9HL._AC_SL1500_.jpg", description: "Potência em formato slim." },
-    { id: 107, name: "AMD Ryzen 7 7800X3D", price: 2250, image: "https://m.media-amazon.com/images/I/51fS8rT9uWL._AC_SL1000_.jpg", description: "A melhor CPU para jogos do mundo." },
-    { id: 108, name: "Intel Core i7-14700K", price: 2800, image: "https://m.media-amazon.com/images/I/61Sno74HAnL._AC_SL1200_.jpg", description: "Equilíbrio perfeito entre trabalho e play." },
-    { id: 109, name: "Corsair Dominator Titanium DDR5", price: 2220, image: "https://m.media-amazon.com/images/I/71+v8O6NgeL._AC_SL1500_.jpg", description: "Memória de elite com estética premium." },
-    { id: 110, name: "SSD Samsung 990 Pro 2TB", price: 3300, image: "https://m.media-amazon.com/images/I/61p-K8u+e9L._AC_SL1500_.jpg", description: "Velocidade de leitura absurda." },
-    { id: 111, name: "Water Cooler Kraken Elite 360", price: 2250, image: "https://m.media-amazon.com/images/I/71XG83O50KL._AC_SL1500_.jpg", description: "Refrigeração com tela LCD." },
-    { id: 112, name: "Lian Li Uni Fan SL-LCD 120", price: 352, image: "https://m.media-amazon.com/images/I/61Uv5vVq14L._AC_SL1500_.jpg", description: "Fans com telas LCD integradas." },
-    { id: 113, name: "Gabinete Hyte Y70 Touch Infinite", price: 3920, image: "https://m.media-amazon.com/images/I/71Zp+T+f2vL._AC_SL1500_.jpg", description: "Gabinete panorâmico com tela touch 4K." },
-    { id: 114, name: "Lian Li O11 Vision Compact", price: 1280, image: "https://m.media-amazon.com/images/I/61R-8C9F-5L._AC_SL1500_.jpg", description: "Design visionário com três vidros." },
-    { id: 115, name: "Water Cooler MSI MAG Coreliquid", price: 920, image: "https://m.media-amazon.com/images/I/61qYF8Y0f2L._AC_SL1500_.jpg", description: "Estética clean em branco." },
-    { id: 116, name: "Gabinete Lian Li O11 Dynamic XL", price: 1800, image: "https://m.media-amazon.com/images/I/71Zp+T+f2vL._AC_SL1500_.jpg", description: "O clássico dos entusiastas." },
-    { id: 117, name: "Fonte Corsair RM1000x Shift", price: 1450, image: "https://m.media-amazon.com/images/I/718V3S-K0AL._AC_SL1500_.jpg", description: "Energia estável cabos laterais." },
-    { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=400", description: "Experiência de digitação única." }
-];
+// 3. FUNÇÕES DE DADOS (SUPABASE)
+async function loadProducts() {
+    try {
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .order('id', { ascending: true });
 
-// --- A MÁGICA ESTÁ AQUI ---
-// Tenta carregar os produtos salvos pelo Painel ADM. Se não houver nenhum, usa a lista fixa.
-let products = JSON.parse(localStorage.getItem('aw_products')) || defaultProducts;
+        if (error) throw error;
 
-// 2. FUNÇÕES GLOBAIS
+        products = data;
+        window.renderProducts();
+    } catch (err) {
+        console.error("Erro ao carregar banco de dados:", err.message);
+        // Fallback: se o banco falhar, você pode opcionalmente carregar uma lista local aqui
+    }
+}
+
+// 4. FUNÇÕES GLOBAIS DE UI
 window.renderProducts = () => {
     const productGrid = document.getElementById('product-grid');
     if (!productGrid) return;
@@ -42,15 +40,14 @@ window.renderProducts = () => {
     const items = products.slice(start, start + productsPerPage);
 
     productGrid.innerHTML = items.map(p => {
-        // Verifica se a imagem é externa para aplicar o proxy weserv (melhora performance e evita erros de SSL)
-        const imageUrl = p.image.startsWith('http') 
-            ? `https://images.weserv.nl/?url=${encodeURIComponent(p.image)}&w=400`
-            : p.image;
-
+        // Removemos o proxy weserv para evitar conflitos com imagens protegidas (como as do ML)
+        // e usamos carregamento nativo com fallback
         return `
         <div class="card-premium bg-gray-800/40 p-5 rounded-2xl border border-gray-800 flex flex-col h-full group">
-            <div class="product-img-container mb-5">
-                <img src="${imageUrl}" alt="${p.name}" onerror="this.src='https://placehold.co/400?text=Hardware'">
+            <div class="product-img-container mb-5 flex items-center justify-center overflow-hidden rounded-xl bg-white/5 h-48">
+                <img src="${p.image}" alt="${p.name}" 
+                     class="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
+                     onerror="this.src='https://placehold.co/400x400/1f2937/white?text=Hardware'">
             </div>
             <h4 class="text-white font-bold mb-2 line-clamp-2">${p.name}</h4>
             <p class="text-gray-400 text-xs mb-5 line-clamp-2 leading-relaxed">${p.description}</p>
@@ -89,7 +86,6 @@ window.addToCart = (id) => {
         localStorage.setItem('aw_cart', JSON.stringify(cart));
         window.updateUI();
         
-        // Feedback visual
         const cartSidebar = document.getElementById('cart-sidebar');
         const overlay = document.getElementById('menu-overlay');
         if (cartSidebar) cartSidebar.classList.remove('translate-x-full');
@@ -126,13 +122,12 @@ window.updateUI = () => {
     }
 };
 
-// 3. INICIALIZAÇÃO DO DOM
+// 5. INICIALIZAÇÃO
 document.addEventListener('DOMContentLoaded', () => {
-    // Sincroniza a variável 'products' com o localStorage mais uma vez por segurança no load
-    const saved = localStorage.getItem('aw_products');
-    if (saved) products = JSON.parse(saved);
+    // Carrega dados da nuvem
+    loadProducts();
 
-    // Auth Check para visual
+    // UI Listeners
     if (localStorage.getItem('aw_admin_auth') === 'true') {
         document.body.classList.add('is-admin');
     }
@@ -155,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('close-cart')?.addEventListener('click', () => toggle(cartSidebar, false));
     overlay?.addEventListener('click', () => { toggle(mobileMenu, false); toggle(cartSidebar, false); });
 
-    // Easter Egg (Admin)
+    // Admin Access
     let logoClicks = 0;
     document.getElementById('admin-logo')?.addEventListener('click', () => {
         logoClicks++;
@@ -170,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Checkout
+    // Checkout WhatsApp
     document.getElementById('checkout-btn')?.addEventListener('click', () => {
         if (!cart.length) return alert("Carrinho vazio!");
         const total = cart.reduce((acc, i) => acc + i.price, 0);
@@ -178,6 +173,5 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(`https://wa.me/5511985878638?text=${encodeURIComponent(msg)}`, '_blank');
     });
 
-    window.renderProducts();
     window.updateUI();
 });
