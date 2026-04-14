@@ -1,12 +1,12 @@
-/** * AW TECHNOLOGY - VERCEL STABLE v9.0
- * UPDATE: Integração com Supabase (Nuvem) + Prevenção de conflito de variáveis
+/** * AW TECHNOLOGY - VERCEL STABLE v10.0
+ * UPDATE: Fix Supabase Variable + Layout Stability (Footer Fix)
  */
 
 // 1. CONFIGURAÇÃO SUPABASE
 const supabaseUrl = 'https://jlfjlzogrmsolgwisuvs.supabase.co'; 
 const supabaseKey = 'sb_publishable_0J6zv-geHQnKUkL9AzCrNQ_BN7tCTTr';
 
-// Usamos 'sb' para evitar o erro "Identifier already been declared"
+// Usamos 'sb' para garantir que não haja conflito com a biblioteca global
 const sb = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // 2. ESTADO GLOBAL
@@ -18,6 +18,7 @@ const productsPerPage = 9;
 // 3. FUNÇÕES DE DADOS (SUPABASE)
 async function loadProducts() {
     try {
+        // CORREÇÃO CRÍTICA: Usando 'sb' para bater com a constante lá de cima
         const { data, error } = await sb
             .from('products')
             .select('*')
@@ -29,6 +30,9 @@ async function loadProducts() {
         window.renderProducts();
     } catch (err) {
         console.error("Erro ao carregar banco de dados:", err.message);
+        // Fallback visual caso o banco falhe
+        const grid = document.getElementById('product-grid');
+        if (grid) grid.innerHTML = `<p class="text-center text-red-400 col-span-full py-10">Erro de conexão com o banco de dados.</p>`;
     }
 }
 
@@ -37,23 +41,19 @@ window.renderProducts = () => {
     const productGrid = document.getElementById('product-grid');
     if (!productGrid) return;
 
-    // Garantimos que o grid tenha altura mínima para o footer não subir
+    // Fix do Footer: mantém o espaço ocupado enquanto renderiza
     productGrid.style.minHeight = '500px';
 
     if (products.length === 0) {
-        productGrid.innerHTML = `
-            <div class="col-span-full py-20 text-center">
-                <p class="text-gray-500 uppercase tracking-widest text-xs">Nenhum produto encontrado</p>
-            </div>`;
+        productGrid.innerHTML = '<p class="text-center text-gray-500 col-span-full py-20">Nenhum produto em estoque.</p>';
         return;
     }
 
     const start = (currentPage - 1) * productsPerPage;
     const items = products.slice(start, start + productsPerPage);
 
-    // Geramos o HTML primeiro para injetar de uma vez só
-    const gridHTML = items.map(p => `
-        <div class="card-premium bg-gray-800/40 p-5 rounded-2xl border border-gray-800 flex flex-col h-full group animate-fade-in">
+    const htmlContent = items.map(p => `
+        <div class="card-premium bg-gray-800/40 p-5 rounded-2xl border border-gray-800 flex flex-col h-full group">
             <div class="product-img-container mb-5 flex items-center justify-center overflow-hidden rounded-xl bg-white/5 h-48">
                 <img src="${p.image}" alt="${p.name}" 
                      class="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
@@ -69,7 +69,7 @@ window.renderProducts = () => {
             </div>
         </div>`).join('');
 
-    productGrid.innerHTML = gridHTML;
+    productGrid.innerHTML = htmlContent;
     window.renderPagination();
 };
 
@@ -89,12 +89,38 @@ window.renderPagination = () => {
         </button>`).join('');
 };
 
-// ... (manter changePage, addToCart e removeFromCart como estão)
+window.changePage = (p) => {
+    currentPage = p;
+    window.renderProducts();
+    const section = document.getElementById('product-grid-section') || document.getElementById('product-grid');
+    if (section) window.scrollTo({ top: section.offsetTop - 100, behavior: 'smooth' });
+};
+
+window.addToCart = (id) => {
+    const item = products.find(p => p.id == id);
+    if (item) {
+        cart.push(item);
+        localStorage.setItem('aw_cart', JSON.stringify(cart));
+        window.updateUI();
+        
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const overlay = document.getElementById('menu-overlay');
+        if (cartSidebar) cartSidebar.classList.remove('translate-x-full');
+        if (overlay) {
+            overlay.style.opacity = '1';
+            overlay.style.pointerEvents = 'auto';
+        }
+    }
+};
+
+window.removeFromCart = (i) => {
+    cart.splice(i, 1);
+    localStorage.setItem('aw_cart', JSON.stringify(cart));
+    window.updateUI();
+};
 
 window.updateUI = () => {
     document.querySelectorAll('#cart-count, #cart-count-mobile').forEach(c => c.innerText = cart.length);
-    
-    // Proteção contra valores nulos no preço
     const total = cart.reduce((acc, i) => acc + (Number(i.price) || 0), 0);
     const totalEl = document.getElementById('cart-total');
     if (totalEl) totalEl.innerText = `R$ ${total.toLocaleString('pt-br', {minimumFractionDigits: 2})}`;
@@ -115,15 +141,13 @@ window.updateUI = () => {
 
 // 5. INICIALIZAÇÃO
 document.addEventListener('DOMContentLoaded', () => {
-    // Adicionamos uma pequena classe de animação no CSS do seu HTML se puder
     loadProducts();
-    // ... (restante dos listeners de menu e admin)
-});
 
     if (localStorage.getItem('aw_admin_auth') === 'true') {
         document.body.classList.add('is-admin');
     }
 
+    // Handlers de UI
     const overlay = document.getElementById('menu-overlay');
     const mobileMenu = document.getElementById('mobile-menu');
     const cartSidebar = document.getElementById('cart-sidebar');
@@ -142,20 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('close-cart')?.addEventListener('click', () => toggle(cartSidebar, false));
     overlay?.addEventListener('click', () => { toggle(mobileMenu, false); toggle(cartSidebar, false); });
 
-    let logoClicks = 0;
-    document.getElementById('admin-logo')?.addEventListener('click', () => {
-        logoClicks++;
-        setTimeout(() => { logoClicks = 0; }, 3000);
-        if (logoClicks >= 5) {
-            logoClicks = 0;
-            const pass = prompt("🔐 ADMIN ACCESS");
-            if (pass === "awaldige785143") {
-                localStorage.setItem('aw_admin_auth', 'true');
-                window.location.href = "admin.html";
-            }
-        }
-    });
-
+    // Checkout WhatsApp
     document.getElementById('checkout-btn')?.addEventListener('click', () => {
         if (!cart.length) return alert("Carrinho vazio!");
         const total = cart.reduce((acc, i) => acc + (Number(i.price) || 0), 0);
