@@ -3,9 +3,12 @@
  */
 
 // 1. CONFIGURAÇÃO SUPABASE
-const supabaseUrl = 'https://jlfjlzogrmsolgwisuvs.supabase.co';
+// 1. CONFIGURAÇÃO SUPABASE
+const supabaseUrl = 'https://jlfjlzogrmsolgwisuvs.supabase.co'; 
 const supabaseKey = 'sb_publishable_0J6zv-geHQnKUkL9AzCrNQ_BN7tCTTr';
-const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
+
+// CORREÇÃO: Usar window.supabase em vez de supabasejs
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // 2. ESTADO GLOBAL
 let products = []; // Agora alimentado pela nuvem
