@@ -1,5 +1,5 @@
-/** * AW TECHNOLOGY - VERCEL STABLE v10.0
- * UPDATE: Fix Supabase Variable + Layout Stability (Footer Fix)
+/** * AW TECHNOLOGY - VERCEL STABLE v10.1
+ * UPDATE: Supabase Sync + Image Handling + Layout Stability
  */
 
 // 1. CONFIGURAÇÃO SUPABASE
@@ -18,19 +18,19 @@ const productsPerPage = 9;
 // 3. FUNÇÕES DE DADOS (SUPABASE)
 async function loadProducts() {
     try {
-        // CORREÇÃO CRÍTICA: Usando 'sb' para bater com a constante lá de cima
+        console.log("Sincronizando com Supabase...");
         const { data, error } = await sb
             .from('products')
             .select('*')
-            .order('id', { ascending: true });
+            .order('id', { ascending: false }); // Mostrar os novos primeiro
 
         if (error) throw error;
 
         products = data || [];
+        console.log("Produtos carregados:", products.length);
         window.renderProducts();
     } catch (err) {
         console.error("Erro ao carregar banco de dados:", err.message);
-        // Fallback visual caso o banco falhe
         const grid = document.getElementById('product-grid');
         if (grid) grid.innerHTML = `<p class="text-center text-red-400 col-span-full py-10">Erro de conexão com o banco de dados.</p>`;
     }
@@ -41,7 +41,7 @@ window.renderProducts = () => {
     const productGrid = document.getElementById('product-grid');
     if (!productGrid) return;
 
-    // Fix do Footer: mantém o espaço ocupado enquanto renderiza
+    // Fix do Footer: mantém o espaço mínimo enquanto renderiza
     productGrid.style.minHeight = '500px';
 
     if (products.length === 0) {
@@ -52,22 +52,27 @@ window.renderProducts = () => {
     const start = (currentPage - 1) * productsPerPage;
     const items = products.slice(start, start + productsPerPage);
 
-    const htmlContent = items.map(p => `
+    const htmlContent = items.map(p => {
+        // Fallback de imagem caso o link esteja quebrado ou vazio
+        const validImage = p.image && p.image.trim() !== '' ? p.image : 'https://placehold.co/400x400/1f2937/white?text=Hardware';
+        
+        return `
         <div class="card-premium bg-gray-800/40 p-5 rounded-2xl border border-gray-800 flex flex-col h-full group">
             <div class="product-img-container mb-5 flex items-center justify-center overflow-hidden rounded-xl bg-white/5 h-48">
-                <img src="${p.image}" alt="${p.name}" 
+                <img src="${validImage}" alt="${p.name}" 
                      class="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
-                     onerror="this.src='https://placehold.co/400x400/1f2937/white?text=Hardware'">
+                     onerror="this.src='https://placehold.co/400x400/1f2937/white?text=Imagem+Indisponível'">
             </div>
             <h4 class="text-white font-bold mb-2 line-clamp-2">${p.name}</h4>
-            <p class="text-gray-400 text-xs mb-5 line-clamp-2 leading-relaxed">${p.description}</p>
+            <p class="text-gray-400 text-xs mb-5 line-clamp-2 leading-relaxed">${p.description || 'Sem descrição disponível.'}</p>
             <div class="mt-auto pt-5 border-t border-gray-700/50">
                 <span class="text-blue-400 text-2xl font-black block mb-4 italic">R$ ${Number(p.price).toLocaleString('pt-br', {minimumFractionDigits: 2})}</span>
                 <button onclick="addToCart(${p.id})" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.97]">
                     Adicionar
                 </button>
             </div>
-        </div>`).join('');
+        </div>`;
+    }).join('');
 
     productGrid.innerHTML = htmlContent;
     window.renderPagination();
@@ -147,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('is-admin');
     }
 
-    // Handlers de UI
     const overlay = document.getElementById('menu-overlay');
     const mobileMenu = document.getElementById('mobile-menu');
     const cartSidebar = document.getElementById('cart-sidebar');
@@ -166,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('close-cart')?.addEventListener('click', () => toggle(cartSidebar, false));
     overlay?.addEventListener('click', () => { toggle(mobileMenu, false); toggle(cartSidebar, false); });
 
-    // Checkout WhatsApp
     document.getElementById('checkout-btn')?.addEventListener('click', () => {
         if (!cart.length) return alert("Carrinho vazio!");
         const total = cart.reduce((acc, i) => acc + (Number(i.price) || 0), 0);
