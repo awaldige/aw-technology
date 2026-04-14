@@ -3,8 +3,8 @@
  */
 
 // --- CONFIGURAÇÃO SUPABASE ---
-const supabaseUrl = 'SUA_URL_AQUI';
-const supabaseKey = 'SUA_CHAVE_ANON_AQUI';
+const supabaseUrl = 'https://jlfjlzogrmsolgwisuvs.supabase.coCopy';
+const supabaseKey = 'sb_publishable_0J6zv-geHQnKUkL9AzCrNQ_BN7tCTTr';
 const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
 
 // --- PROTEÇÃO ---
