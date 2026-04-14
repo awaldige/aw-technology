@@ -1,18 +1,40 @@
-// --- PROTEÇÃO ---
-const authRole = localStorage.getItem('aw_auth_role');
+/** * AW TECHNOLOGY - ADMIN CLOUD v9.0
+ * UPDATE: CRUD Completo via Supabase + Segurança de Role
+ */
 
+// --- CONFIGURAÇÃO SUPABASE ---
+const supabaseUrl = 'SUA_URL_AQUI';
+const supabaseKey = 'SUA_CHAVE_ANON_AQUI';
+const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
+
+// --- PROTEÇÃO ---
 (function verifyAuth() {
     if (localStorage.getItem('aw_admin_auth') !== 'true') {
         window.location.href = 'index.html';
     }
 })();
 
-// --- PRODUTOS ---
-let products = JSON.parse(localStorage.getItem('aw_products')) || [];
-
+// --- ESTADO GLOBAL ---
+let products = [];
 const productList = document.getElementById('product-list');
 const productForm = document.getElementById('product-form');
 const modal = document.getElementById('modal');
+
+// --- BUSCA DINÂMICA (READ) ---
+async function loadAdminProducts() {
+    const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('id', { ascending: false });
+
+    if (error) {
+        console.error('Erro ao buscar produtos:', error);
+        return;
+    }
+
+    products = data;
+    renderProducts();
+}
 
 // --- RENDER & STATS ---
 function renderProducts() {
@@ -28,11 +50,9 @@ function renderProducts() {
                     <small class="text-gray-500 line-clamp-1">${p.description}</small>
                 </div>
             </td>
-
             <td class="text-center text-blue-400 font-bold">
                 R$ ${Number(p.price).toLocaleString('pt-br', { minimumFractionDigits: 2 })}
             </td>
-
             <td class="text-center">
                 <div class="flex justify-center gap-2">
                     <button onclick="editProduct(${p.id})" class="p-2 hover:bg-blue-500/20 rounded transition">✏️</button>
@@ -40,9 +60,8 @@ function renderProducts() {
                 </div>
             </td>
         </tr>
-    `).join('') || '<tr><td colspan="3" class="p-10 text-center text-gray-600">Nenhum produto cadastrado.</td></tr>';
+    `).join('') || '<tr><td colspan="3" class="p-10 text-center text-gray-600">Nenhum produto no banco de dados.</td></tr>';
 
-    localStorage.setItem('aw_products', JSON.stringify(products));
     updateStats();
 }
 
@@ -51,14 +70,13 @@ function updateStats() {
     const totalValue = products.reduce((acc, p) => acc + Number(p.price), 0);
     const avgPrice = totalItems > 0 ? totalValue / totalItems : 0;
 
-    if (document.getElementById('stat-total-items')) 
-        document.getElementById('stat-total-items').innerText = totalItems;
+    const ids = ['stat-total-items', 'stat-total-value', 'stat-avg-price'];
+    const values = [totalItems, `R$ ${totalValue.toLocaleString('pt-br')}`, `R$ ${avgPrice.toLocaleString('pt-br')}`];
     
-    if (document.getElementById('stat-total-value')) 
-        document.getElementById('stat-total-value').innerText = `R$ ${totalValue.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`;
-    
-    if (document.getElementById('stat-avg-price')) 
-        document.getElementById('stat-avg-price').innerText = `R$ ${avgPrice.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`;
+    ids.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = values[i];
+    });
 }
 
 // --- MODAL ---
@@ -73,11 +91,11 @@ window.closeModal = () => {
     modal.classList.replace('flex', 'hidden');
 };
 
-// --- SALVAR ---
-productForm.addEventListener('submit', (e) => {
+// --- SALVAR (CREATE / UPDATE) ---
+productForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // TRAVA PARA CONVIDADO
+    // TRAVA PARA CONVIDADO (Mantida conforme solicitado)
     if (localStorage.getItem('aw_auth_role') === 'guest') {
         alert("Ação não permitida no Modo Demonstração.");
         closeModal();
@@ -85,26 +103,24 @@ productForm.addEventListener('submit', (e) => {
     }
 
     const id = document.getElementById('product-id').value;
-    const name = document.getElementById('name').value;
-    const price = parseFloat(document.getElementById('price').value);
-    let image = document.getElementById('image').value.trim();
-    const description = document.getElementById('description').value;
+    const productData = {
+        name: document.getElementById('name').value,
+        price: parseFloat(document.getElementById('price').value),
+        image: document.getElementById('image').value.trim() || "https://placehold.co/400?text=AW+TECH",
+        description: document.getElementById('description').value
+    };
 
-    if (!image || !image.startsWith('http')) {
-        image = "https://placehold.co/400x400/1f2937/white?text=AW+TECH";
-    }
+    // UPSERT no Supabase: Se tiver ID atualiza, se não tiver cria.
+    const { error } = await supabase
+        .from('products')
+        .upsert(id ? { id: Number(id), ...productData } : productData);
 
-    if (id) {
-        const index = products.findIndex(p => p.id == id);
-        if (index !== -1) {
-            products[index] = { id: Number(id), name, price, image, description };
-        }
+    if (error) {
+        alert("Erro ao salvar no banco: " + error.message);
     } else {
-        products.push({ id: Date.now(), name, price, image, description });
+        closeModal();
+        loadAdminProducts(); // Recarrega do banco para garantir sincronia
     }
-
-    closeModal();
-    renderProducts();
 });
 
 // --- EDITAR ---
@@ -123,15 +139,23 @@ window.editProduct = (id) => {
 };
 
 // --- DELETE ---
-window.deleteProduct = (id) => {
+window.deleteProduct = async (id) => {
     if (localStorage.getItem('aw_auth_role') === 'guest') {
         alert("Ação não permitida no Modo Demonstração.");
         return;
     }
 
-    if (confirm('Deseja remover este produto permanentemente?')) {
-        products = products.filter(p => p.id !== id);
-        renderProducts();
+    if (confirm('Deseja remover este produto permanentemente da nuvem?')) {
+        const { error } = await supabase
+            .from('products')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            alert("Erro ao deletar: " + error.message);
+        } else {
+            loadAdminProducts();
+        }
     }
 };
 
@@ -142,19 +166,16 @@ window.logoutAdmin = () => {
     window.location.href = 'index.html';
 };
 
-// --- INIT & DEMO CHECK ---
+// --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
     const role = localStorage.getItem('aw_auth_role');
     const demoBanner = document.getElementById('demo-banner');
 
     if (role === 'guest') {
         if (demoBanner) demoBanner.classList.remove('hidden');
-        // Desativa visualmente o botão de novo produto
         const btnNew = document.getElementById('btn-new-product');
-        if (btnNew) {
-            btnNew.classList.add('opacity-50', 'cursor-not-allowed');
-            btnNew.title = "Apenas visualização";
-        }
+        if (btnNew) btnNew.classList.add('opacity-50', 'cursor-not-allowed');
     }
-    renderProducts();
+
+    loadAdminProducts(); // Busca inicial no Supabase
 });
