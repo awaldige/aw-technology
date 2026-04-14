@@ -14,7 +14,11 @@
     
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .admin-only { display: none !important; } 
+        
+        /* Classe controlada pelo script.js para exibir elementos administrativos */
+        .admin-only { display: none !important; }
+        body.is-admin .admin-only { display: inline-block !important; }
+        body.is-admin .admin-only-flex { display: flex !important; }
         
         .card-premium {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -59,7 +63,7 @@
                 <ul class="flex space-x-8 text-sm font-medium items-center">
                     <li><a href="#" class="transition hover:text-blue-400">Home</a></li>
                     <li><a href="#product-grid-section" class="transition hover:text-blue-400 text-gray-300">Produtos</a></li>
-                    <li><a href="admin.html" class="admin-only transition text-blue-500 hover:text-blue-400 font-bold border border-blue-500/30 px-3 py-1 rounded-lg">Painel ADM</a></li>
+                    <li><a href="admin.html" class="admin-only transition text-blue-500 hover:text-blue-400 font-bold border border-blue-500/30 px-3 py-1 rounded-lg italic">Painel ADM</a></li>
                     <li class="relative ml-4">
                         <button id="cart-btn" aria-label="Ver Carrinho" class="p-2 bg-gray-800 rounded-full hover:bg-blue-600 transition relative group">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,77 +104,6 @@
             <li><a href="admin.html" class="admin-only mobile-link block p-4 text-blue-500 font-bold border border-blue-500/20 rounded-xl">Painel ADM</a></li>
         </ul>
     </aside>
-
-    <aside id="cart-sidebar" class="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-gray-950 shadow-2xl z-[70] translate-x-full transition-transform duration-300 border-l border-gray-800 flex flex-col">
-        <div class="p-6 border-b border-gray-800 flex justify-between items-center">
-            <div>
-                <h3 class="text-xl font-bold text-white">Carrinho</h3>
-                <p class="text-xs text-gray-500 uppercase tracking-tighter">Itens selecionados</p>
-            </div>
-            <button id="close-cart" class="text-3xl text-gray-400 hover:text-white transition-colors">&times;</button>
-        </div>
-        
-        <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
-
-        <div class="p-6 border-t border-gray-800 bg-gray-900/50">
-            <div class="flex justify-between items-end mb-6">
-                <span class="text-gray-400 text-sm font-medium">Subtotal:</span>
-                <span id="cart-total" class="text-3xl font-black text-blue-400 leading-none">R$ 0,00</span>
-            </div>
-            <button id="checkout-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-lg shadow-blue-600/20">
-                Finalizar no WhatsApp
-            </button>
-        </div>
-    </aside>
-
-    <main class="container mx-auto px-4">
-        <section class="text-center py-20 md:py-32 relative">
-            <span class="inline-block px-4 py-1.5 mb-6 text-[10px] md:text-xs font-bold tracking-[0.2em] text-blue-400 uppercase bg-blue-500/10 border border-blue-500/20 rounded-full">
-                Hardware de Ultra-Performance
-            </span>
-            <h2 class="text-5xl md:text-8xl font-black mb-8 tracking-tighter leading-none">
-                <span class="text-white">AW</span> <span class="text-blue-600">TECH</span>
-            </h2>
-            <p class="text-base md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 px-4 leading-relaxed">
-                Curadoria rigorosa para setups de alta performance. 
-                <span class="text-white font-semibold">Projetamos o seu domínio digital.</span>
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4 px-6">
-                <a href="#product-grid-section" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-10 rounded-xl transition-all text-center">
-                    Explorar Inventário
-                </a>
-                <a href="https://wa.me/5511985878638" target="_blank" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-10 rounded-xl border border-gray-700 transition-all text-center">
-                    Consultoria VIP
-                </a>
-            </div>
-        </section>
-
-        <section id="product-grid-section" class="mb-24 scroll-mt-28">
-            <div class="flex items-center gap-4 mb-12">
-                <span class="w-12 h-1 bg-blue-600 rounded-full"></span>
-                <h3 class="text-2xl md:text-3xl font-black uppercase tracking-tight italic">Inventário Premium</h3>
-            </div>
-            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"></div>
-            <div id="pagination-container" class="flex justify-center flex-wrap gap-2 mt-16"></div>
-        </section>
-    </main>
-
-    <footer class="bg-gray-950 py-16 border-t border-gray-800">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-2xl font-black tracking-tighter mb-8">
-                <span class="text-white">AW</span> <span class="text-blue-500">TECHNOLOGY</span>
-            </h2>
-            <div class="flex justify-center space-x-8 mb-10">
-                <a href="#" id="insta-link" class="text-gray-500 hover:text-white transition-all transform hover:scale-110">
-                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                </a>
-                <a href="#" id="whats-link" class="text-gray-500 hover:text-green-500 transition-all transform hover:scale-110">
-                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.886.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-                </a>
-            </div>
-            <p class="text-gray-600 text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold">&copy; 2026 AW TECHNOLOGY.</p>
-        </div>
-    </footer>
 
     <script src="script.js"></script>
 </body>
