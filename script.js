@@ -1,10 +1,19 @@
-/** * AW TECHNOLOGY - VERCEL STABLE v8.0 
- * Full Integration: UI Controls + Cart + Pagination + Easter Egg
+/** * AW TECHNOLOGY - VERCEL STABLE v8.5 
+ * Integração Total: Auth + UI Controls + Cart + Pagination + Easter Egg
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- ELEMENTOS DA INTERFACE ---
+    // --- 0. CONTROLE DE AUTENTICAÇÃO E VISIBILIDADE ---
+    const checkAuth = () => {
+        const isAuth = localStorage.getItem('aw_admin_auth') === 'true';
+        if (isAuth) {
+            document.body.classList.add('is-admin');
+        }
+    };
+    checkAuth();
+
+    // --- 1. ELEMENTOS DA INTERFACE ---
     const menuBtn = document.getElementById('menu-btn');
     const closeBtn = document.getElementById('close-btn');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -15,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('menu-overlay');
     const logo = document.getElementById('admin-logo');
 
-    // --- FUNÇÕES DE CONTROLE DE MENU ---
+    // --- 2. FUNÇÕES DE CONTROLE DE MENU ---
     const toggleMenu = (isOpen) => {
         mobileMenu.classList.toggle('translate-x-full', !isOpen);
         overlay.style.opacity = isOpen ? '1' : '0';
@@ -35,22 +44,31 @@ document.addEventListener('DOMContentLoaded', () => {
     closeCart?.addEventListener('click', () => toggleCart(false));
     overlay?.addEventListener('click', () => { toggleMenu(false); toggleCart(false); });
 
-    // --- LOGIN OCULTO (5 TOQUES) ---
+    // --- 3. LOGIN OCULTO (EASTER EGG ATUALIZADO) ---
     let logoClicks = 0;
     let clickTimer;
     logo?.addEventListener('click', () => {
         logoClicks++;
         clearTimeout(clickTimer);
         clickTimer = setTimeout(() => { logoClicks = 0; }, 3000);
+        
         if (logoClicks >= 5) {
             logoClicks = 0;
-            const pass = prompt("🔐 ADMIN ACCESS\nDigite a senha:");
-            if (pass === "780606") window.location.href = "admin.html";
-            else alert("Acesso Negado.");
+            const pass = prompt("🔐 ADMIN ACCESS\nDigite a chave mestra:");
+            
+            // Sincronizado com a nova senha definida
+            if (pass === "awaldige785143") {
+                localStorage.setItem('aw_admin_auth', 'true');
+                localStorage.setItem('aw_auth_role', 'admin');
+                checkAuth(); // Libera os botões na hora
+                window.location.href = "admin.html";
+            } else {
+                alert("Acesso Negado.");
+            }
         }
     });
 
-    // --- RODAPÉ REATIVO ---
+    // --- 4. RODAPÉ REATIVO ---
     window.socialDemo = (rede) => {
         alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado.\nSimulação de redirecionamento AW Technology.`);
     };
@@ -58,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('insta-link')?.addEventListener('click', (e) => { e.preventDefault(); socialDemo('Instagram'); });
     document.getElementById('whats-link')?.addEventListener('click', (e) => { e.preventDefault(); socialDemo('WhatsApp'); });
 
-    // --- CONFIGURAÇÃO DE PRODUTOS ---
+    // --- 5. CONFIGURAÇÃO DE PRODUTOS ---
     const productGrid = document.getElementById('product-grid');
     const paginationContainer = document.getElementById('pagination-container');
     let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
@@ -117,7 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>`).join('');
     };
 
-    window.changePage = (p) => { currentPage = p; renderProducts(); window.scrollTo({top: productGrid.offsetTop - 100, behavior: 'smooth'}); };
+    window.changePage = (p) => { 
+        currentPage = p; 
+        renderProducts(); 
+        window.scrollTo({top: productGrid.offsetTop - 100, behavior: 'smooth'}); 
+    };
 
     window.addToCart = (id) => {
         const item = products.find(p => p.id == id);
