@@ -8,7 +8,7 @@ Plataforma de e-commerce de hardware de ultra-performance desenvolvida para entu
 ---
 
 ## 🔗 Link para Visualização
-> **Acesse o projeto online:** [CLIQUE AQUI PARA VER A LOJA](https://andre-waldige-dev.github.io/aw-technology/)
+> **Acesse o projeto online:** [CLIQUE AQUI PARA VER A LOJA](https://aw-technology.vercel.app/)
 *(Substitua o link acima pela URL do seu GitHub Pages)*
 
 ---
