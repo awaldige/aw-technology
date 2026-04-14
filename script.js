@@ -1,29 +1,55 @@
-/** * AW TECHNOLOGY - SCRIPT FINAL (VERCEL READY)
- * 1. Funções globais primeiro (Rodapé)
- * 2. Banco de dados completo (18 itens)
- * 3. Lógica de renderização e carrinho
+/** * AW TECHNOLOGY - VERCEL STABLE v8.0
+ * Resolução: Login Oculto + Rodapé Reativo + 18 Itens
  */
 
-// --- 1. ESCOPO GLOBAL (Essencial para o onclick do HTML) ---
+// 1. FUNÇÃO GLOBAL (Mantida por segurança se você voltar o onclick no HTML)
 window.socialDemo = function(rede) {
     alert(`🚀 MODO DEMONSTRAÇÃO: O link para o ${rede} está configurado corretamente.\n\nEsta é uma simulação de redirecionamento da AW Technology.`);
 };
 
-// --- 2. INICIALIZAÇÃO DO SISTEMA ---
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Referências de UI
+    // --- LOGIN OCULTO (5 TOQUES) ---
+    let logoClicks = 0;
+    let clickTimer;
+    const logo = document.querySelector('header h1');
+
+    if (logo) {
+        logo.addEventListener('click', () => {
+            logoClicks++;
+            clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => { logoClicks = 0; }, 3000);
+
+            if (logoClicks >= 5) {
+                logoClicks = 0;
+                const pass = prompt("🔐 ADMIN ACCESS\nDigite a senha:");
+                if (pass === "780606") window.location.href = "admin.html";
+                else alert("Acesso Negado.");
+            }
+        });
+    }
+
+    // --- RODAPÉ REATIVO (Busca os ícones via SVG) ---
+    const footerLinks = document.querySelectorAll('footer a');
+    footerLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            // Se o link for apenas '#' ou 'javascript:void(0)', dispara o alerta
+            if (link.getAttribute('href') === '#' || link.getAttribute('href').includes('javascript')) {
+                e.preventDefault();
+                // Tenta descobrir se é Insta ou Whats pela cor ou conteúdo
+                const isInsta = link.innerHTML.includes('pink') || link.querySelector('path')?.getAttribute('d')?.startsWith('M12 2.163');
+                window.socialDemo(isInsta ? 'Instagram' : 'WhatsApp');
+            }
+        });
+    });
+
+    // --- CONFIGURAÇÃO DE PRODUTOS (18 ITENS) ---
     const productGrid = document.getElementById('product-grid');
     const paginationContainer = document.getElementById('pagination-container');
-    const menuOverlay = document.getElementById('menu-overlay');
-    const cartSidebar = document.getElementById('cart-sidebar');
-    
-    // Configurações
     let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
     let currentPage = 1;
     const productsPerPage = 9;
 
-    // --- 3. BANCO DE DADOS (18 ITENS) ---
     const products = [
         { id: 101, name: "HD WD Purple Surveillance 6TB", price: 1229, image: "https://m.media-amazon.com/images/I/81S2Wb17P4L._AC_SL1500_.jpg", description: "Engenharia de elite para sistemas de segurança." },
         { id: 102, name: "Placa de Vídeo Inno3d RTX 5070", price: 6300, image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400", description: "Desempenho de próxima geração." },
@@ -45,145 +71,82 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=400", description: "Experiência de digitação única." }
     ];
 
-    // --- 4. FUNÇÕES DE RENDERIZAÇÃO ---
+    // --- RENDERIZAÇÃO ---
     window.renderProducts = () => {
         if (!productGrid) return;
-        
         const start = (currentPage - 1) * productsPerPage;
-        const end = start + productsPerPage;
-        const currentItems = products.slice(start, end);
+        const items = products.slice(start, start + productsPerPage);
 
-        productGrid.innerHTML = currentItems.map(p => {
-            // Proxy Weserv para garantir HTTPS e evitar bloqueio da Amazon
-            const imgUrl = `https://images.weserv.nl/?url=${encodeURIComponent(p.image)}&w=400&fit=contain`;
-
+        productGrid.innerHTML = items.map(p => {
+            const secureImg = `https://images.weserv.nl/?url=${encodeURIComponent(p.image)}&w=400&fit=contain`;
             return `
-            <div class="card-premium bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col h-full shadow-lg group transition-all duration-300">
-                <div class="bg-white rounded-xl mb-4 h-48 flex items-center justify-center overflow-hidden">
-                    <img src="${imgUrl}" class="max-h-full p-2 group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/400?text=Hardware'">
+            <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col h-full shadow-lg group">
+                <div class="product-img-container mb-4">
+                    <img src="${secureImg}" onerror="this.src='https://placehold.co/400?text=Hardware'">
                 </div>
                 <h4 class="text-white font-bold mb-1 line-clamp-2">${p.name}</h4>
-                <p class="text-gray-400 text-xs mb-4 line-clamp-2 flex-grow">${p.description}</p>
+                <p class="text-gray-400 text-xs mb-4 line-clamp-2">${p.description}</p>
                 <div class="mt-auto pt-4 border-t border-gray-700/50">
-                    <span class="text-blue-400 text-xl font-black block mb-3">R$ ${p.price.toLocaleString('pt-br', {minimumFractionDigits: 2})}</span>
-                    <button onclick="addToCart(${p.id})" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-900/20">
-                        Adicionar ao Carrinho
+                    <span class="text-blue-400 text-xl font-black block mb-3">R$ ${p.price.toLocaleString('pt-br')}</span>
+                    <button onclick="addToCart(${p.id})" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all">
+                        Adicionar
                     </button>
                 </div>
             </div>`;
         }).join('');
-
-        renderPaginationControls();
+        renderPagination();
     };
 
-    const renderPaginationControls = () => {
+    const renderPagination = () => {
         if (!paginationContainer) return;
-        const totalPages = Math.ceil(products.length / productsPerPage);
-        
-        paginationContainer.innerHTML = Array.from({ length: totalPages }, (_, i) => `
-            <button onclick="changePage(${i + 1})" class="w-10 h-10 rounded-lg font-bold transition-all ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}">
+        const total = Math.ceil(products.length / productsPerPage);
+        paginationContainer.innerHTML = Array.from({ length: total }, (_, i) => `
+            <button onclick="changePage(${i + 1})" class="w-10 h-10 rounded-lg font-bold transition-all ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-500'}">
                 ${i + 1}
             </button>
         `).join('');
     };
 
-    window.changePage = (page) => {
-        currentPage = page;
-        window.renderProducts();
-        document.getElementById('product-grid-section')?.scrollIntoView({ behavior: 'smooth' });
-    };
+    window.changePage = (p) => { currentPage = p; window.renderProducts(); window.scrollTo({top: 0, behavior: 'smooth'}); };
 
-    // --- 5. LÓGICA DO CARRINHO (GLOBAL) ---
+    // --- CARRINHO ---
     window.addToCart = (id) => {
-        const product = products.find(p => p.id == id);
-        if (product) {
-            cart.push(product);
+        const item = products.find(p => p.id == id);
+        if (item) {
+            cart.push(item);
             localStorage.setItem('aw_cart', JSON.stringify(cart));
-            updateCartUI();
-            
-            // Abrir sidebar automaticamente
-            cartSidebar?.classList.remove('translate-x-full');
-            menuOverlay?.classList.remove('hidden');
-            document.body.classList.add('no-scroll');
+            updateUI();
+            document.getElementById('cart-sidebar')?.classList.remove('translate-x-full');
+            document.getElementById('menu-overlay')?.classList.remove('hidden');
         }
     };
 
-    window.removeFromCart = (index) => {
-        cart.splice(index, 1);
+    window.removeFromCart = (i) => {
+        cart.splice(i, 1);
         localStorage.setItem('aw_cart', JSON.stringify(cart));
-        updateCartUI();
+        updateUI();
     };
 
-    function updateCartUI() {
+    function updateUI() {
         const counts = document.querySelectorAll('#cart-count, #cart-count-mobile');
-        counts.forEach(c => { if(c) c.innerText = cart.length; });
+        counts.forEach(c => c.innerText = cart.length);
+        const total = cart.reduce((acc, i) => acc + i.price, 0);
+        const totalEl = document.getElementById('cart-total');
+        if (totalEl) totalEl.innerText = `R$ ${total.toLocaleString('pt-br')}`;
         
-        const cartContainer = document.getElementById('cart-items');
-        const totalElement = document.getElementById('cart-total');
-        
-        if (cartContainer) {
-            if (cart.length === 0) {
-                cartContainer.innerHTML = '<p class="text-gray-500 text-center py-10">Carrinho vazio.</p>';
-            } else {
-                cartContainer.innerHTML = cart.map((item, i) => `
-                    <div class="flex items-center gap-3 bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-                        <img src="${item.image}" class="w-12 h-12 object-contain bg-white rounded-lg">
-                        <div class="flex-1 min-w-0">
-                            <p class="text-xs font-bold text-white truncate">${item.name}</p>
-                            <p class="text-blue-400 text-sm font-bold">R$ ${item.price.toLocaleString('pt-br')}</p>
-                        </div>
-                        <button onclick="removeFromCart(${i})" class="text-gray-500 hover:text-red-500 p-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                        </button>
-                    </div>
-                `).join('');
-            }
-        }
-
-        if (totalElement) {
-            const total = cart.reduce((acc, item) => acc + item.price, 0);
-            totalElement.innerText = `R$ ${total.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`;
+        const container = document.getElementById('cart-items');
+        if (container) {
+            container.innerHTML = cart.map((item, i) => `
+                <div class="flex items-center gap-3 bg-gray-900 p-2 rounded-lg border border-gray-800 mb-2">
+                    <img src="${item.image}" class="w-10 h-10 object-contain bg-white rounded">
+                    <div class="flex-1 truncate"><p class="text-[10px] font-bold text-white">${item.name}</p></div>
+                    <button onclick="removeFromCart(${i})" class="text-red-500 text-xs">X</button>
+                </div>
+            `).join('');
         }
     }
 
-    // --- 6. EVENTOS DE UI (ABRIR/FECHAR) ---
-    const toggleCart = () => {
-        cartSidebar?.classList.toggle('translate-x-full');
-        menuOverlay?.classList.toggle('hidden');
-        document.body.classList.toggle('no-scroll');
-    };
-
-    document.getElementById('cart-btn')?.addEventListener('click', toggleCart);
-    document.getElementById('cart-btn-mobile-trigger')?.addEventListener('click', toggleCart);
-    document.getElementById('close-cart')?.addEventListener('click', toggleCart);
-    
-    document.getElementById('menu-btn')?.addEventListener('click', () => {
-        document.getElementById('mobile-menu')?.classList.remove('translate-x-full');
-        menuOverlay?.classList.remove('hidden');
-        document.body.classList.add('no-scroll');
-    });
-
-    const closeAll = () => {
-        document.getElementById('mobile-menu')?.classList.add('translate-x-full');
-        cartSidebar?.classList.add('translate-x-full');
-        menuOverlay?.classList.add('hidden');
-        document.body.classList.remove('no-scroll');
-    };
-
-    document.getElementById('close-btn')?.addEventListener('click', closeAll);
-    menuOverlay?.addEventListener('click', closeAll);
-
-    // Checkout WhatsApp
-    document.getElementById('checkout-btn')?.addEventListener('click', () => {
-        if (cart.length === 0) return alert("Adicione itens ao carrinho!");
-        const total = cart.reduce((acc, item) => acc + item.price, 0);
-        let msg = "🚀 *NOVO PEDIDO - AW TECHNOLOGY*\n\n";
-        cart.forEach(i => msg += `• ${i.name}\n`);
-        msg += `\n💰 *TOTAL: R$ ${total.toLocaleString('pt-br')}*`;
-        window.open(`https://wa.me/5511985878638?text=${encodeURIComponent(msg)}`, '_blank');
-    });
-
-    // Início
+    // Inicialização
     window.renderProducts();
-    updateCartUI();
+    updateUI();
 });
