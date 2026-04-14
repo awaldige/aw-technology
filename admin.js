@@ -3,12 +3,11 @@ const authRole = localStorage.getItem('aw_auth_role');
 
 (function verifyAuth() {
     if (localStorage.getItem('aw_admin_auth') !== 'true') {
-        window.location.href = 'index.html'; // Redireciona para home se não logado
+        window.location.href = 'index.html';
     }
 })();
 
 // --- PRODUTOS ---
-// Tenta ler do localStorage; se estiver vazio, começa com array vazio
 let products = JSON.parse(localStorage.getItem('aw_products')) || [];
 
 const productList = document.getElementById('product-list');
@@ -19,7 +18,6 @@ const modal = document.getElementById('modal');
 function renderProducts() {
     if (!productList) return;
 
-    // Atualiza a tabela
     productList.innerHTML = products.map(p => `
         <tr class="border-b border-gray-700/50 hover:bg-gray-800/30 transition">
             <td class="p-4 flex items-center gap-3">
@@ -44,10 +42,7 @@ function renderProducts() {
         </tr>
     `).join('') || '<tr><td colspan="3" class="p-10 text-center text-gray-600">Nenhum produto cadastrado.</td></tr>';
 
-    // Salva no LocalStorage para o Site consumir
     localStorage.setItem('aw_products', JSON.stringify(products));
-    
-    // Atualiza os cards de estatísticas (Dashboard)
     updateStats();
 }
 
@@ -70,7 +65,7 @@ function updateStats() {
 window.openModal = () => {
     modal.classList.replace('hidden', 'flex');
     productForm.reset();
-    document.getElementById('product-id').value = ''; // Limpa o ID oculto
+    document.getElementById('product-id').value = '';
     document.getElementById('modal-title').innerText = "Cadastrar Produto";
 };
 
@@ -82,32 +77,30 @@ window.closeModal = () => {
 productForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
+    // TRAVA PARA CONVIDADO
+    if (localStorage.getItem('aw_auth_role') === 'guest') {
+        alert("Ação não permitida no Modo Demonstração.");
+        closeModal();
+        return;
+    }
+
     const id = document.getElementById('product-id').value;
     const name = document.getElementById('name').value;
     const price = parseFloat(document.getElementById('price').value);
     let image = document.getElementById('image').value.trim();
     const description = document.getElementById('description').value;
 
-    // Correção de Imagem
     if (!image || !image.startsWith('http')) {
         image = "https://placehold.co/400x400/1f2937/white?text=AW+TECH";
     }
 
     if (id) {
-        // Modo Edição
         const index = products.findIndex(p => p.id == id);
         if (index !== -1) {
             products[index] = { id: Number(id), name, price, image, description };
         }
     } else {
-        // Modo Novo Produto
-        products.push({
-            id: Date.now(),
-            name,
-            price,
-            image,
-            description
-        });
+        products.push({ id: Date.now(), name, price, image, description });
     }
 
     closeModal();
@@ -131,7 +124,12 @@ window.editProduct = (id) => {
 
 // --- DELETE ---
 window.deleteProduct = (id) => {
-    if (confirm('Deseja remover este produto permanentemente do inventário?')) {
+    if (localStorage.getItem('aw_auth_role') === 'guest') {
+        alert("Ação não permitida no Modo Demonstração.");
+        return;
+    }
+
+    if (confirm('Deseja remover este produto permanentemente?')) {
         products = products.filter(p => p.id !== id);
         renderProducts();
     }
@@ -140,8 +138,23 @@ window.deleteProduct = (id) => {
 // --- LOGOUT ---
 window.logoutAdmin = () => {
     localStorage.removeItem('aw_admin_auth');
+    localStorage.removeItem('aw_auth_role');
     window.location.href = 'index.html';
 };
 
-// --- INIT ---
-renderProducts();
+// --- INIT & DEMO CHECK ---
+document.addEventListener('DOMContentLoaded', () => {
+    const role = localStorage.getItem('aw_auth_role');
+    const demoBanner = document.getElementById('demo-banner');
+
+    if (role === 'guest') {
+        if (demoBanner) demoBanner.classList.remove('hidden');
+        // Desativa visualmente o botão de novo produto
+        const btnNew = document.getElementById('btn-new-product');
+        if (btnNew) {
+            btnNew.classList.add('opacity-50', 'cursor-not-allowed');
+            btnNew.title = "Apenas visualização";
+        }
+    }
+    renderProducts();
+});
