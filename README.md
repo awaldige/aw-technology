@@ -9,26 +9,25 @@ Plataforma de e-commerce de hardware de ultra-performance desenvolvida para entu
 
 ## 🔗 Link para Visualização
 > **Acesse o projeto online:** [CLIQUE AQUI PARA VER A LOJA](https://aw-technology.vercel.app/)
-*(Substitua o link acima pela URL do seu GitHub Pages)*
+
 
 ---
 
 ## 📸 Screenshots do Projeto
 
 ### 🖥️ Desktop - Home & Catálogo
-<p align="center">
-  <img src="https://via.placeholder.com/800x450.png?text=Preview+Home+AW+Technology" alt="Home Desktop" width="800">
-</p>
+![Captura de tela 2026-04-14 151615](https://github.com/user-attachments/assets/eb781895-2c92-4a29-bbf0-2bf00537851a)
 
-### 📱 Interface Mobile & Carrinho
-<p align="center">
-  <img src="https://via.placeholder.com/300x600.png?text=Preview+Mobile" alt="Versão Mobile" width="300">
-</p>
+ 
 
-### 🔐 Painel Administrativo (Dark Mode)
-<p align="center">
-  <img src="https://via.placeholder.com/800x450.png?text=Painel+ADM" alt="Painel Administrativo" width="800">
-</p>
+### 🔐 Painel Administrativo Convidado Demonstração
+![Captura de tela 2026-04-14 152739](https://github.com/user-attachments/assets/e0047895-5bac-4cb3-ad0c-ad8c934490a7)
+
+
+
+
+### 🔐 Painel Administrativo
+![Captura de tela 2026-04-14 151910](https://github.com/user-attachments/assets/3ff66232-bec1-46e6-9f14-63e6dcb2864a)
 
 ---
 
