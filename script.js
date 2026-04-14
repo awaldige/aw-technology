@@ -37,11 +37,23 @@ window.renderProducts = () => {
     const productGrid = document.getElementById('product-grid');
     if (!productGrid) return;
 
+    // Garantimos que o grid tenha altura mínima para o footer não subir
+    productGrid.style.minHeight = '500px';
+
+    if (products.length === 0) {
+        productGrid.innerHTML = `
+            <div class="col-span-full py-20 text-center">
+                <p class="text-gray-500 uppercase tracking-widest text-xs">Nenhum produto encontrado</p>
+            </div>`;
+        return;
+    }
+
     const start = (currentPage - 1) * productsPerPage;
     const items = products.slice(start, start + productsPerPage);
 
-    productGrid.innerHTML = items.map(p => `
-        <div class="card-premium bg-gray-800/40 p-5 rounded-2xl border border-gray-800 flex flex-col h-full group">
+    // Geramos o HTML primeiro para injetar de uma vez só
+    const gridHTML = items.map(p => `
+        <div class="card-premium bg-gray-800/40 p-5 rounded-2xl border border-gray-800 flex flex-col h-full group animate-fade-in">
             <div class="product-img-container mb-5 flex items-center justify-center overflow-hidden rounded-xl bg-white/5 h-48">
                 <img src="${p.image}" alt="${p.name}" 
                      class="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
@@ -56,6 +68,8 @@ window.renderProducts = () => {
                 </button>
             </div>
         </div>`).join('');
+
+    productGrid.innerHTML = gridHTML;
     window.renderPagination();
 };
 
@@ -63,44 +77,24 @@ window.renderPagination = () => {
     const container = document.getElementById('pagination-container');
     if (!container) return;
     const total = Math.ceil(products.length / productsPerPage);
+    
+    if (total <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
     container.innerHTML = Array.from({ length: total }, (_, i) => `
         <button onclick="changePage(${i + 1})" class="w-11 h-11 rounded-xl font-bold transition-all ${currentPage === i + 1 ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}">
             ${i + 1}
         </button>`).join('');
 };
 
-window.changePage = (p) => {
-    currentPage = p;
-    window.renderProducts();
-    const section = document.getElementById('product-grid-section') || document.getElementById('product-grid');
-    if (section) window.scrollTo({ top: section.offsetTop - 100, behavior: 'smooth' });
-};
-
-window.addToCart = (id) => {
-    const item = products.find(p => p.id == id);
-    if (item) {
-        cart.push(item);
-        localStorage.setItem('aw_cart', JSON.stringify(cart));
-        window.updateUI();
-        
-        const cartSidebar = document.getElementById('cart-sidebar');
-        const overlay = document.getElementById('menu-overlay');
-        if (cartSidebar) cartSidebar.classList.remove('translate-x-full');
-        if (overlay) {
-            overlay.style.opacity = '1';
-            overlay.style.pointerEvents = 'auto';
-        }
-    }
-};
-
-window.removeFromCart = (i) => {
-    cart.splice(i, 1);
-    localStorage.setItem('aw_cart', JSON.stringify(cart));
-    window.updateUI();
-};
+// ... (manter changePage, addToCart e removeFromCart como estão)
 
 window.updateUI = () => {
     document.querySelectorAll('#cart-count, #cart-count-mobile').forEach(c => c.innerText = cart.length);
+    
+    // Proteção contra valores nulos no preço
     const total = cart.reduce((acc, i) => acc + (Number(i.price) || 0), 0);
     const totalEl = document.getElementById('cart-total');
     if (totalEl) totalEl.innerText = `R$ ${total.toLocaleString('pt-br', {minimumFractionDigits: 2})}`;
@@ -121,7 +115,10 @@ window.updateUI = () => {
 
 // 5. INICIALIZAÇÃO
 document.addEventListener('DOMContentLoaded', () => {
+    // Adicionamos uma pequena classe de animação no CSS do seu HTML se puder
     loadProducts();
+    // ... (restante dos listeners de menu e admin)
+});
 
     if (localStorage.getItem('aw_admin_auth') === 'true') {
         document.body.classList.add('is-admin');
