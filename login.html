@@ -3,113 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AW TECHNOLOGY | Login Administrativo</title>
+    <title>AW TECHNOLOGY | Acesso Restrito</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass { background: rgba(31, 41, 55, 0.7); backdrop-filter: blur(10px); }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+        }
+        .glass { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .input-glow:focus {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
+<body class="text-white min-h-screen flex items-center justify-center p-6">
 
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
-            <a href="index.html" class="text-gray-500 hover:text-blue-400 transition-colors text-sm flex items-center justify-center gap-2 mb-2">
-                ← Voltar para a loja
+            <a href="index.html" class="inline-flex items-center gap-2 text-gray-500 hover:text-blue-400 transition-all text-xs font-bold uppercase tracking-widest mb-6">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Voltar à Vitrine
             </a>
-            <h1 class="text-3xl font-bold tracking-tighter italic">
-                <span class="text-white">AW</span> <span class="text-blue-500">TECHNOLOGY</span>
+            <h1 class="text-4xl font-black tracking-tighter italic">
+                AW <span class="text-blue-500">TECHNOLOGY</span>
             </h1>
-            <p class="text-gray-400 mt-2 text-xs uppercase tracking-widest">Painel de Controle Elite</p>
+            <div class="h-1 w-12 bg-blue-600 mx-auto mt-2 rounded-full"></div>
         </div>
 
-        <div class="glass border border-gray-700 p-8 rounded-3xl shadow-2xl">
+        <div class="glass p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50"></div>
+            
+            <h2 class="text-xl font-bold mb-2 text-center">Autenticação</h2>
+            <p class="text-gray-400 text-sm text-center mb-8">Insira sua chave de acesso para gerenciar o inventário.</p>
+
             <form id="login-form" class="space-y-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-2">Chave de Acesso</label>
-                    <div class="relative">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1">Chave Mestra ou Convidado</label>
+                    <div class="relative group">
                         <input type="password" id="admin-pass" 
-                               class="w-full bg-gray-900/50 border border-gray-700 rounded-xl p-4 pr-12 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder:text-gray-600"
-                               placeholder="••••••••" required>
+                               class="w-full bg-gray-950/50 border border-gray-800 rounded-2xl p-4 pr-12 text-white outline-none focus:border-blue-500 transition-all input-glow placeholder:text-gray-700"
+                               placeholder="Digite sua senha...">
                         
-                        <button type="button" id="toggle-pass" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-400 transition-colors">
+                        <button type="button" id="toggle-pass" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-blue-400 transition-colors">
                             <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         </button>
                     </div>
-                    <p class="mt-2 text-[10px] text-gray-500 italic">
-                        Dica Portfólio: Use <b>convidado123</b> para modo demonstração.
-                    </p>
                 </div>
 
                 <button type="submit" 
-                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-blue-600/20">
-                    Autenticar Acesso
+                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all active:scale-[0.97] shadow-lg shadow-blue-600/30 flex items-center justify-center gap-3 group">
+                    ACESSAR PAINEL
+                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
                 </button>
-
-                <p id="error-msg" class="text-red-400 text-sm text-center hidden animate-pulse">
-                    ⚠️ Chave incorreta. Acesso negado.
-                </p>
             </form>
+
+            <div class="mt-8 pt-6 border-t border-gray-800/50 text-center">
+                <p class="text-gray-500 text-xs mb-3 font-semibold uppercase tracking-widest">Acesso Rápido</p>
+                <button onclick="loginGuest()" class="text-blue-400 hover:text-blue-300 text-sm font-bold border border-blue-500/20 px-4 py-2 rounded-xl bg-blue-500/5 transition-all">
+                    Entrar como Convidado
+                </button>
+            </div>
         </div>
 
-        <p class="text-center text-gray-600 text-[10px] mt-8 uppercase tracking-widest">
-            &copy; 2026 AW TECHNOLOGY System.
-        </p>
+        <div id="error-msg" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-full font-bold shadow-xl animate-bounce">
+            ⚠️ Chave inválida. Tente novamente.
+        </div>
     </div>
 
     <script>
         const loginForm = document.getElementById('login-form');
         const passInput = document.getElementById('admin-pass');
-        const togglePassBtn = document.getElementById('toggle-pass');
-        const eyeIcon = document.getElementById('eye-icon');
         const errorMsg = document.getElementById('error-msg');
 
-        // Função para alternar visibilidade da senha
-        togglePassBtn.addEventListener('click', () => {
-            const isPassword = passInput.type === 'password';
-            passInput.type = isPassword ? 'text' : 'password';
-            
-            // Troca o ícone
-            if (isPassword) {
-                eyeIcon.innerHTML = `
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.888 9.888L3 3m18 18l-6.912-6.912" />
-                `;
-            } else {
-                eyeIcon.innerHTML = `
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                `;
-            }
+        // Alternar senha
+        document.getElementById('toggle-pass').addEventListener('click', function() {
+            const type = passInput.type === 'password' ? 'text' : 'password';
+            passInput.type = type;
+            this.classList.toggle('text-blue-500');
         });
 
+        // Função Unificada de Login
+        function performLogin(role) {
+            // Limpa sessões anteriores
+            localStorage.removeItem('aw_admin_auth');
+            localStorage.removeItem('aw_auth_role');
+
+            // Define novas credenciais
+            localStorage.setItem('aw_admin_auth', 'true');
+            localStorage.setItem('aw_auth_role', role);
+
+            // Redireciona
+            window.location.href = 'admin.html';
+        }
+
+        // Login Manual (Formulário)
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const senhaDigitada = passInput.value.trim();
+            const senha = passInput.value.trim();
+            const SENHA_MESTRA = 'awaldige785143';
+            const SENHA_DEMO = 'convidado123';
 
-            const SENHA_MESTRA = 'awaldige785143'; 
-            const SENHA_DEMO = 'convidado123'; 
-
-            if (senhaDigitada === SENHA_MESTRA) {
-                localStorage.setItem('aw_admin_auth', 'true');
-                localStorage.setItem('aw_auth_role', 'admin'); 
-                window.location.href = 'admin.html';
-            } else if (senhaDigitada === SENHA_DEMO) {
-                localStorage.setItem('aw_admin_auth', 'true');
-                localStorage.setItem('aw_auth_role', 'guest'); 
-                window.location.href = 'admin.html';
+            if (senha === SENHA_MESTRA) {
+                performLogin('admin');
+            } else if (senha === SENHA_DEMO) {
+                performLogin('guest');
             } else {
                 errorMsg.classList.remove('hidden');
                 passInput.value = '';
-                passInput.focus();
                 setTimeout(() => errorMsg.classList.add('hidden'), 3000);
             }
         });
 
-        passInput.addEventListener('input', () => errorMsg.classList.add('hidden'));
+        // Login via Botão Convidado
+        function loginGuest() {
+            performLogin('guest');
+        }
     </script>
 </body>
 </html>
