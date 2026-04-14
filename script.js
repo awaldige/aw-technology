@@ -1,5 +1,5 @@
-/** * AW TECHNOLOGY - VERCEL STABLE v8.7
- * FINAL: Escopo Global Seguro + Proteção de Erros de Scroll
+/** * AW TECHNOLOGY - VERCEL STABLE v8.8
+ * UPDATE: Sincronização Dinâmica com Painel ADM + Fallback Seguro
  */
 
 // 1. ESTADO GLOBAL
@@ -7,7 +7,8 @@ let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
 let currentPage = 1;
 const productsPerPage = 9;
 
-const products = [
+// Lista Padrão (Fallback) caso o localStorage esteja vazio
+const defaultProducts = [
     { id: 101, name: "HD WD Purple Surveillance 6TB", price: 1229, image: "https://m.media-amazon.com/images/I/81S2Wb17P4L._AC_SL1500_.jpg", description: "Engenharia de elite para sistemas de segurança." },
     { id: 102, name: "Placa de Vídeo Inno3d RTX 5070", price: 6300, image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400", description: "Desempenho de próxima geração." },
     { id: 103, name: "Kit Upgrade i9-14900K + B760M", price: 5200, image: "https://images.unsplash.com/photo-1591405351990-4726e33df58d?w=400", description: "O coração do seu setup." },
@@ -28,6 +29,10 @@ const products = [
     { id: 118, name: "Teclado Custom Mecânico Elite", price: 1200, image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=400", description: "Experiência de digitação única." }
 ];
 
+// --- A MÁGICA ESTÁ AQUI ---
+// Tenta carregar os produtos salvos pelo Painel ADM. Se não houver nenhum, usa a lista fixa.
+let products = JSON.parse(localStorage.getItem('aw_products')) || defaultProducts;
+
 // 2. FUNÇÕES GLOBAIS
 window.renderProducts = () => {
     const productGrid = document.getElementById('product-grid');
@@ -36,20 +41,27 @@ window.renderProducts = () => {
     const start = (currentPage - 1) * productsPerPage;
     const items = products.slice(start, start + productsPerPage);
 
-    productGrid.innerHTML = items.map(p => `
+    productGrid.innerHTML = items.map(p => {
+        // Verifica se a imagem é externa para aplicar o proxy weserv (melhora performance e evita erros de SSL)
+        const imageUrl = p.image.startsWith('http') 
+            ? `https://images.weserv.nl/?url=${encodeURIComponent(p.image)}&w=400`
+            : p.image;
+
+        return `
         <div class="card-premium bg-gray-800/40 p-5 rounded-2xl border border-gray-800 flex flex-col h-full group">
             <div class="product-img-container mb-5">
-                <img src="https://images.weserv.nl/?url=${encodeURIComponent(p.image)}&w=400" alt="${p.name}" onerror="this.src='https://placehold.co/400?text=Hardware'">
+                <img src="${imageUrl}" alt="${p.name}" onerror="this.src='https://placehold.co/400?text=Hardware'">
             </div>
             <h4 class="text-white font-bold mb-2 line-clamp-2">${p.name}</h4>
             <p class="text-gray-400 text-xs mb-5 line-clamp-2 leading-relaxed">${p.description}</p>
             <div class="mt-auto pt-5 border-t border-gray-700/50">
-                <span class="text-blue-400 text-2xl font-black block mb-4 italic">R$ ${p.price.toLocaleString('pt-br')}</span>
+                <span class="text-blue-400 text-2xl font-black block mb-4 italic">R$ ${Number(p.price).toLocaleString('pt-br', {minimumFractionDigits: 2})}</span>
                 <button onclick="addToCart(${p.id})" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.97]">
                     Adicionar
                 </button>
             </div>
-        </div>`).join('');
+        </div>`;
+    }).join('');
     window.renderPagination();
 };
 
@@ -76,7 +88,8 @@ window.addToCart = (id) => {
         cart.push(item);
         localStorage.setItem('aw_cart', JSON.stringify(cart));
         window.updateUI();
-        // Feedback visual: Abre o carrinho
+        
+        // Feedback visual
         const cartSidebar = document.getElementById('cart-sidebar');
         const overlay = document.getElementById('menu-overlay');
         if (cartSidebar) cartSidebar.classList.remove('translate-x-full');
@@ -97,16 +110,16 @@ window.updateUI = () => {
     document.querySelectorAll('#cart-count, #cart-count-mobile').forEach(c => c.innerText = cart.length);
     const total = cart.reduce((acc, i) => acc + i.price, 0);
     const totalEl = document.getElementById('cart-total');
-    if (totalEl) totalEl.innerText = `R$ ${total.toLocaleString('pt-br')}`;
+    if (totalEl) totalEl.innerText = `R$ ${total.toLocaleString('pt-br', {minimumFractionDigits: 2})}`;
 
     const container = document.getElementById('cart-items');
     if (container) {
         container.innerHTML = cart.length ? cart.map((item, i) => `
             <div class="flex items-center gap-4 bg-gray-900/80 p-3 rounded-xl border border-gray-800">
-                <img src="${item.image}" class="w-12 h-12 object-contain bg-white/10 rounded-lg">
+                <img src="${item.image}" class="w-12 h-12 object-contain bg-white/10 rounded-lg" onerror="this.src='https://placehold.co/100?text=IMG'">
                 <div class="flex-1 min-w-0">
                     <p class="text-[11px] font-bold text-white truncate">${item.name}</p>
-                    <p class="text-blue-400 text-xs font-bold">R$ ${item.price.toLocaleString('pt-br')}</p>
+                    <p class="text-blue-400 text-xs font-bold">R$ ${item.price.toLocaleString('pt-br', {minimumFractionDigits: 2})}</p>
                 </div>
                 <button onclick="removeFromCart(${i})" class="text-gray-500 hover:text-red-500 p-2 transition-colors">✕</button>
             </div>`).join('') : '<p class="text-center text-gray-600 py-10 uppercase text-xs tracking-widest">Carrinho Vazio</p>';
@@ -115,12 +128,15 @@ window.updateUI = () => {
 
 // 3. INICIALIZAÇÃO DO DOM
 document.addEventListener('DOMContentLoaded', () => {
-    // Auth Check
+    // Sincroniza a variável 'products' com o localStorage mais uma vez por segurança no load
+    const saved = localStorage.getItem('aw_products');
+    if (saved) products = JSON.parse(saved);
+
+    // Auth Check para visual
     if (localStorage.getItem('aw_admin_auth') === 'true') {
         document.body.classList.add('is-admin');
     }
 
-    // Seletores de UI
     const overlay = document.getElementById('menu-overlay');
     const mobileMenu = document.getElementById('mobile-menu');
     const cartSidebar = document.getElementById('cart-sidebar');
@@ -132,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.style.pointerEvents = isOpen ? 'auto' : 'none';
     };
 
-    // Event Listeners Dinâmicos
     document.getElementById('menu-btn')?.addEventListener('click', () => toggle(mobileMenu, true));
     document.getElementById('close-btn')?.addEventListener('click', () => toggle(mobileMenu, false));
     document.getElementById('cart-btn')?.addEventListener('click', () => toggle(cartSidebar, true));
@@ -140,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('close-cart')?.addEventListener('click', () => toggle(cartSidebar, false));
     overlay?.addEventListener('click', () => { toggle(mobileMenu, false); toggle(cartSidebar, false); });
 
-    // Easter Egg
+    // Easter Egg (Admin)
     let logoClicks = 0;
     document.getElementById('admin-logo')?.addEventListener('click', () => {
         logoClicks++;
@@ -155,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // WhatsApp Checkout
+    // Checkout
     document.getElementById('checkout-btn')?.addEventListener('click', () => {
         if (!cart.length) return alert("Carrinho vazio!");
         const total = cart.reduce((acc, i) => acc + i.price, 0);
@@ -163,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(`https://wa.me/5511985878638?text=${encodeURIComponent(msg)}`, '_blank');
     });
 
-    // Início
     window.renderProducts();
     window.updateUI();
 });
