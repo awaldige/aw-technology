@@ -15,7 +15,7 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         
-        /* Classe controlada pelo script.js para exibir elementos administrativos */
+        /* Controle de visibilidade Admin */
         .admin-only { display: none !important; }
         body.is-admin .admin-only { display: inline-block !important; }
         body.is-admin .admin-only-flex { display: flex !important; }
@@ -29,12 +29,6 @@
             border-color: rgba(59, 130, 246, 0.5);
         }
 
-        @keyframes pulse-bg {
-            0%, 100% { background-color: #1e293b; }
-            50% { background-color: #334155; }
-        }
-        .skeleton { animation: pulse-bg 2s infinite ease-in-out; }
-
         .product-img-container {
             aspect-ratio: 16 / 10;
             display: flex;
@@ -45,10 +39,15 @@
             border-radius: 0.75rem;
         }
         .product-img-container img {
-            width: 100%;
-            height: 100%;
+            max-width: 90%;
+            max-height: 90%;
             object-fit: contain;
         }
+
+        /* Scrollbar customizada para o carrinho */
+        #cart-items::-webkit-scrollbar { width: 4px; }
+        #cart-items::-webkit-scrollbar-track { background: transparent; }
+        #cart-items::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans antialiased overflow-x-hidden">
@@ -65,7 +64,7 @@
                     <li><a href="#product-grid-section" class="transition hover:text-blue-400 text-gray-300">Produtos</a></li>
                     <li><a href="admin.html" class="admin-only transition text-blue-500 hover:text-blue-400 font-bold border border-blue-500/30 px-3 py-1 rounded-lg italic">Painel ADM</a></li>
                     <li class="relative ml-4">
-                        <button id="cart-btn" aria-label="Ver Carrinho" class="p-2 bg-gray-800 rounded-full hover:bg-blue-600 transition relative group">
+                        <button id="cart-btn" class="p-2 bg-gray-800 rounded-full hover:bg-blue-600 transition relative group">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
@@ -76,13 +75,13 @@
             </nav>
 
             <div class="flex items-center gap-2 md:hidden">
-                <button id="cart-btn-mobile-trigger" aria-label="Ver Carrinho Mobile" class="p-2 bg-gray-800 rounded-full relative active:scale-90 transition-transform">
+                <button id="cart-btn-mobile-trigger" class="p-2 bg-gray-800 rounded-full relative active:scale-90 transition-transform">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
                     <span id="cart-count-mobile" class="absolute -top-1 -right-1 bg-blue-500 text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
                 </button>
-                <button id="menu-btn" aria-label="Abrir Menu" class="text-white p-2">
+                <button id="menu-btn" class="text-white p-2">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
                     </svg>
@@ -93,17 +92,51 @@
 
     <div id="menu-overlay" class="fixed inset-0 bg-black/60 opacity-0 pointer-events-none z-[55] backdrop-blur-sm transition-opacity duration-300"></div>
 
-    <aside id="mobile-menu" class="fixed inset-y-0 right-0 w-72 bg-gray-950 z-[60] translate-x-full transition-transform duration-300 border-l border-gray-800 shadow-2xl">
+    <aside id="mobile-menu" class="fixed inset-y-0 right-0 w-72 bg-gray-950 z-[60] translate-x-full transition-transform duration-300 border-l border-gray-800">
         <div class="flex justify-between items-center p-6 border-b border-gray-800">
-            <span class="font-bold text-blue-500 tracking-widest text-sm">NAVEGAÇÃO</span>
-            <button id="close-btn" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            <span class="font-bold text-blue-500 tracking-widest text-xs italic">NAVEGAÇÃO</span>
+            <button id="close-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
         </div>
-        <ul class="flex flex-col p-6 space-y-4">
-            <li><a href="#" class="mobile-link block p-4 bg-gray-900/50 hover:bg-gray-800 rounded-xl transition">Home</a></li>
-            <li><a href="#product-grid-section" class="mobile-link block p-4 bg-gray-900/50 hover:bg-gray-800 rounded-xl transition">Produtos</a></li>
-            <li><a href="admin.html" class="admin-only mobile-link block p-4 text-blue-500 font-bold border border-blue-500/20 rounded-xl">Painel ADM</a></li>
+        <ul class="flex flex-col p-6 space-y-3">
+            <li><a href="#" class="block p-4 bg-gray-900 rounded-xl">Home</a></li>
+            <li><a href="#product-grid-section" class="block p-4 bg-gray-900 rounded-xl">Produtos</a></li>
+            <li><a href="admin.html" class="admin-only block p-4 text-blue-500 font-bold border border-blue-500/20 rounded-xl italic">Painel ADM</a></li>
         </ul>
     </aside>
+
+    <aside id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-96 bg-gray-950 z-[60] translate-x-full transition-transform duration-300 border-l border-gray-800 flex flex-col">
+        <div class="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-950">
+            <h3 class="font-black text-white italic">MEU CARRINHO</h3>
+            <button id="close-cart" class="text-gray-500 hover:text-white text-3xl">&times;</button>
+        </div>
+        
+        <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3">
+            </div>
+
+        <div class="p-6 border-t border-gray-800 bg-gray-900/50">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-gray-400 text-sm uppercase font-bold">Total Estimado</span>
+                <span id="cart-total" class="text-2xl font-black text-blue-400">R$ 0,00</span>
+            </div>
+            <button id="checkout-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/20">
+                FINALIZAR PEDIDO (WHATSAPP)
+            </button>
+        </div>
+    </aside>
+
+    <main class="container mx-auto px-4 py-12">
+        <section id="product-grid-section" class="scroll-mt-24">
+            <div class="flex items-center justify-between mb-10">
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter">Hardware <span class="text-blue-500">Premium</span></h2>
+            </div>
+            
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+
+            <div id="pagination-container" class="mt-12 flex justify-center gap-3">
+                </div>
+        </section>
+    </main>
 
     <script src="script.js"></script>
 </body>
