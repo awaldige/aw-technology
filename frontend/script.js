@@ -1,12 +1,19 @@
 /**
- * AW TECHNOLOGY - VERCEL STABLE v11.0 (RESTORED)
- * STATUS: Ajustado para arquitetura desacoplada (FUNCIONANDO)
+ * AW TECHNOLOGY - VERCEL STABLE v11.1
+ * STATUS: API conectada ao Render + Neon
  */
 
-// 1. CONFIGURAÇÃO DA API (Apontando para o servidor Express correspondente)
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5000/api/products'
-    : 'https://aw-technology-backend.onrender.com/api/products';
+// ============================================
+// CONFIGURAÇÃO DA API
+// ============================================
+
+const API_URL =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+        ? "http://localhost:5000/api/products"
+        : "https://aw-technology.onrender.com/api/products";
+
+console.log("API:", API_URL);
 
 
 
