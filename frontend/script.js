@@ -6,7 +6,7 @@
 // 1. CONFIGURAÇÃO DA API (Apontando para o servidor Express correspondente)
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5000/api/products'
-    : 'https://seu-backend-vercel.vercel.app/api/products'; // Substitua pela URL final quando fizer deploy do backend
+    : 'https://aw-technology-backend.onrender.com/api/products';
 
 
 
