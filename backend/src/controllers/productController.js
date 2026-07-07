@@ -4,18 +4,11 @@ const prisma = require("../config/prisma");
 const getProducts = async (req, res) => {
   try {
     const products = await prisma.product.findMany({
-      orderBy: { id: 'desc' } // Opcional: traz os mais novos primeiro
+      orderBy: { id: 'desc' }
     });
-   } catch (err) {
-  console.error("========== CREATE PRODUCT ==========");
-  console.error("BODY:", req.body);
-  console.error("MESSAGE:", err.message);
-  console.error("STACK:", err.stack);
-  console.error(err);
-
-  return res.status(500).json({
-    error: err.message
-  });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -24,7 +17,6 @@ const createProduct = async (req, res) => {
   try {
     const { name, description, price, image } = req.body;
 
-    // Validação de segurança para o Neon não rejeitar
     if (!name || !price) {
       return res.status(400).json({ error: "Nome e preço são obrigatórios." });
     }
@@ -33,28 +25,28 @@ const createProduct = async (req, res) => {
       data: {
         name,
         description: description || "", 
-        price: parseFloat(price), // parseFloat é mais seguro para garantir decimais no banco
-        image: image || "https://placehold.co/100?text=HW", // Garante fallback se vier vazio
+        price: parseFloat(price),
+        image: image || "https://placehold.co/100?text=HW",
       },
     });
 
     res.status(201).json(product);
   } catch (err) {
-  console.error("========== CREATE PRODUCT ==========");
-  console.error("BODY:", req.body);
-  console.error("MESSAGE:", err.message);
-  console.error("STACK:", err.stack);
-  console.error(err);
+    console.error("========== CREATE PRODUCT ==========");
+    console.error("BODY:", req.body);
+    console.error("MESSAGE:", err.message);
+    console.error("STACK:", err.stack);
+    console.error(err);
 
-  return res.status(500).json({
-    error: err.message
-  });
-}
+    return res.status(500).json({
+      error: err.message
+    });
+  } // <-- ESSA CHAVE ESTAVA FALTANDO FECHAR AQUI!
+};
 
 // ATUALIZAR
 const updateProduct = async (req, res) => {
   try {
-    // Ajustado para req.query para casar com o seu admin.html (`?id=${id}`)
     const id = req.query.id || req.params.id; 
 
     if (!id) {
@@ -82,7 +74,6 @@ const updateProduct = async (req, res) => {
 // DELETAR
 const deleteProduct = async (req, res) => {
   try {
-    // Ajustado para req.query para casar com o seu admin.html (`?id=${id}`)
     const id = req.query.id || req.params.id;
 
     if (!id) {
