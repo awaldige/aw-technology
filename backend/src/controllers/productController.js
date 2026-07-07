@@ -33,9 +33,16 @@ const createProduct = async (req, res) => {
 
     res.status(201).json(product);
   } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+  console.error("========== CREATE PRODUCT ==========");
+  console.error("BODY:", req.body);
+  console.error("MESSAGE:", err.message);
+  console.error("STACK:", err.stack);
+  console.error(err);
+
+  return res.status(500).json({
+    error: err.message
+  });
+}
 
 // ATUALIZAR
 const updateProduct = async (req, res) => {
