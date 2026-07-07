@@ -6,9 +6,16 @@ const getProducts = async (req, res) => {
     const products = await prisma.product.findMany({
       orderBy: { id: 'desc' } // Opcional: traz os mais novos primeiro
     });
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+   } catch (err) {
+  console.error("========== CREATE PRODUCT ==========");
+  console.error("BODY:", req.body);
+  console.error("MESSAGE:", err.message);
+  console.error("STACK:", err.stack);
+  console.error(err);
+
+  return res.status(500).json({
+    error: err.message
+  });
   }
 };
 
