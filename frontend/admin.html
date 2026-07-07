@@ -174,7 +174,7 @@
         // GET: Buscar Produtos da API interna
         async function loadProducts() {
             try {
-                const response = await fetch('/api/products');
+                const response = await fetch('https://aw-technology.onrender.com/api/products');
                 if (!response.ok) throw new Error('Falha ao sincronizar com o banco de dados');
                 
                 products = await response.json();
@@ -269,7 +269,7 @@
             if (isGuest && !isAdmin) return;
             if (!confirm("Remover este item do inventário?")) return;
             try {
-                const response = await fetch(`/api/products?id=${id}`, { method: 'DELETE' });
+                const response = await fetch(`https://aw-technology.onrender.com/api/products?id=${id}`, { method: 'DELETE' });
                 if (!response.ok) throw new Error('Não foi possível deletar o hardware.');
                 loadProducts();
             } catch (err) {
@@ -292,21 +292,19 @@
 
             try {
                 let response;
-                if (id) {
-                    // Atualização (PUT)
-                    response = await fetch(`/api/products?id=${id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                } else {
-                    // Criação (POST)
-                    response = await fetch('/api/products', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                }
+             if (id) {
+    response = await fetch(`https://aw-technology.onrender.com/api/products?id=${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+} else {
+    response = await fetch('https://aw-technology.onrender.com/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+}
 
                 if (!response.ok) throw new Error('Erro ao salvar as especificações do hardware.');
                 
