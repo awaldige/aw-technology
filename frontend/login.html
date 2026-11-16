@@ -1,142 +1,358 @@
+
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+
     <title>AW TECHNOLOGY | Acesso Restrito</title>
-    
- <link rel="icon" type="image/png" href="favicon.png?v=2">
+
+    <link rel="icon" type="image/png" href="favicon.png?v=2">
     <link rel="apple-touch-icon" href="favicon.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+
     <style>
-        body { 
+        body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: radial-gradient(circle at top right, #1e293b, #0f172a);
         }
-        .glass { 
-            background: rgba(30, 41, 59, 0.7); 
+
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
+
         .input-glow:focus {
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
         }
     </style>
 </head>
+
 <body class="text-white min-h-screen flex items-center justify-center p-6">
 
     <div class="w-full max-w-md">
+
         <div class="text-center mb-8">
-            <a href="index.html" class="inline-flex items-center gap-2 text-gray-500 hover:text-blue-400 transition-all text-xs font-bold uppercase tracking-widest mb-6">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+
+            <a href="index.html"
+               class="inline-flex items-center gap-2 text-gray-500 hover:text-blue-400 transition-all text-xs font-bold uppercase tracking-widest mb-6">
+
+                <svg class="w-4 h-4"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+
                 Voltar à Vitrine
             </a>
+
             <h1 class="text-4xl font-black tracking-tighter italic">
                 AW <span class="text-blue-500">TECHNOLOGY</span>
             </h1>
+
             <div class="h-1 w-12 bg-blue-600 mx-auto mt-2 rounded-full"></div>
+
         </div>
 
         <div class="glass p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50"></div>
-            
-            <h2 class="text-xl font-bold mb-2 text-center">Autenticação</h2>
-            <p class="text-gray-400 text-sm text-center mb-8">Insira sua chave de acesso para gerenciar o inventário.</p>
+
+            <h2 class="text-xl font-bold mb-2 text-center">
+                Autenticação
+            </h2>
+
+            <p class="text-gray-400 text-sm text-center mb-8">
+                Insira sua chave de acesso para gerenciar o inventário.
+            </p>
 
             <form id="login-form" class="space-y-6">
+
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-1">Chave Mestra ou Convidado</label>
+
+                    <label for="admin-pass"
+                           class="text-xs font-bold text-gray-400 uppercase ml-1">
+
+                        Senha administrativa
+                    </label>
+
                     <div class="relative group">
-                        <input type="password" id="admin-pass" 
-                               class="w-full bg-gray-950/50 border border-gray-800 rounded-2xl p-4 pr-12 text-white outline-none focus:border-blue-500 transition-all input-glow placeholder:text-gray-700"
-                               placeholder="Digite sua senha...">
-                        
-                        <button type="button" id="toggle-pass" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-blue-400 transition-colors">
-                            <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+
+                        <input
+                            type="password"
+                            id="admin-pass"
+                            autocomplete="current-password"
+                            required
+                            class="w-full bg-gray-950/50 border border-gray-800 rounded-2xl p-4 pr-12 text-white outline-none focus:border-blue-500 transition-all input-glow placeholder:text-gray-700"
+                            placeholder="Digite sua senha..."
+                        >
+
+                        <button
+                            type="button"
+                            id="toggle-pass"
+                            aria-label="Mostrar ou ocultar senha"
+                            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-blue-400 transition-colors">
+
+                            <svg id="eye-icon"
+                                 class="w-5 h-5"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
+
                         </button>
+
                     </div>
+
                 </div>
 
-                <button type="submit" 
-                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all active:scale-[0.97] shadow-lg shadow-blue-600/30 flex items-center justify-center gap-3 group">
-                    ACESSAR PAINEL
-                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                <button
+                    type="submit"
+                    id="login-button"
+                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all active:scale-[0.97] shadow-lg shadow-blue-600/30 flex items-center justify-center gap-3 group">
+
+                    <span id="login-button-text">ACESSAR PAINEL</span>
+
+                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+
                 </button>
+
             </form>
 
             <div class="mt-8 pt-6 border-t border-gray-800/50 text-center">
-                <p class="text-gray-500 text-xs mb-3 font-semibold uppercase tracking-widest">Acesso Rápido</p>
-                <button onclick="loginGuest()" class="text-blue-400 hover:text-blue-300 text-sm font-bold border border-blue-500/20 px-4 py-2 rounded-xl bg-blue-500/5 transition-all">
+
+                <p class="text-gray-500 text-xs mb-3 font-semibold uppercase tracking-widest">
+                    Acesso Rápido
+                </p>
+
+                <button
+                    type="button"
+                    id="guest-button"
+                    onclick="loginGuest()"
+                    class="text-blue-400 hover:text-blue-300 text-sm font-bold border border-blue-500/20 px-4 py-2 rounded-xl bg-blue-500/5 transition-all">
+
                     Entrar como Convidado
+
                 </button>
+
             </div>
+
         </div>
 
-        <div id="error-msg" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-full font-bold shadow-xl animate-bounce">
-            ⚠️ Chave inválida. Tente novamente.
+        <div
+            id="error-msg"
+            role="alert"
+            aria-live="polite"
+            class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-full font-bold shadow-xl text-center max-w-[90%]">
+
+            Não foi possível realizar o acesso.
         </div>
+
     </div>
 
     <script>
-        const loginForm = document.getElementById('login-form');
-        const passInput = document.getElementById('admin-pass');
-        const errorMsg = document.getElementById('error-msg');
+        // ============================================
+        // CONFIGURAÇÃO DA API
+        // ============================================
 
-        // Alternar visibilidade da senha
-        document.getElementById('toggle-pass').addEventListener('click', function() {
-            const type = passInput.type === 'password' ? 'text' : 'password';
-            passInput.type = type;
-            this.classList.toggle('text-blue-500');
+        const API_BASE =
+            window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1"
+                ? "http://localhost:3001/api"
+                : "https://aw-technology.onrender.com/api";
+
+        const LOGIN_URL = `${API_BASE}/auth/login`;
+
+        // ============================================
+        // ELEMENTOS
+        // ============================================
+
+        const loginForm = document.getElementById("login-form");
+        const passInput = document.getElementById("admin-pass");
+        const errorMsg = document.getElementById("error-msg");
+        const loginButton = document.getElementById("login-button");
+        const loginButtonText = document.getElementById("login-button-text");
+        const guestButton = document.getElementById("guest-button");
+
+        // ============================================
+        // MOSTRAR / OCULTAR SENHA
+        // ============================================
+
+        document.getElementById("toggle-pass").addEventListener("click", function () {
+
+            const visible = passInput.type === "password";
+
+            passInput.type = visible ? "text" : "password";
+
+            this.classList.toggle("text-blue-500", visible);
+
         });
 
-        // Função de Redirecionamento e Segurança
-        function performLogin(type) {
-            // Garante uma sessão limpa antes de definir as chaves
-            localStorage.removeItem('aw_admin_auth');
-            localStorage.removeItem('aw_guest_demo');
+        // ============================================
+        // MENSAGENS
+        // ============================================
 
-            if (type === 'admin') {
-                localStorage.setItem('aw_admin_auth', 'true');
-            } else {
-                localStorage.setItem('aw_guest_demo', 'true');
-            }
+        function showError(message) {
 
-            window.location.href = 'admin.html';
+            errorMsg.textContent = message;
+
+            errorMsg.classList.remove("hidden");
+
+            passInput.value = "";
+            passInput.focus();
+
+            setTimeout(() => {
+                errorMsg.classList.add("hidden");
+            }, 4000);
+
         }
 
-        // Login via Formulário (Senha Mestra ou Senha Convidado)
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const senha = passInput.value.trim();
-            
-            // Definição das credenciais internas de validação
-            const SENHA_MESTRA = 'awaldige785143'; 
-            const SENHA_DEMO = '780606'; 
+        // ============================================
+        // LIMPAR SESSÃO ANTERIOR
+        // ============================================
 
-            if (senha === SENHA_MESTRA) {
-                performLogin('admin');
-            } else if (senha === SENHA_DEMO) {
-                performLogin('guest');
-            } else {
-                showError();
+        function clearPreviousSession() {
+
+            sessionStorage.removeItem("aw_admin_token");
+
+            localStorage.removeItem("aw_admin_auth");
+
+            localStorage.removeItem("aw_guest_demo");
+
+        }
+
+        // ============================================
+        // LOGIN ADMINISTRATIVO
+        // ============================================
+
+        loginForm.addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+
+            const password = passInput.value;
+
+            if (!password) {
+                showError("Informe sua senha.");
+                return;
             }
+
+            loginButton.disabled = true;
+            guestButton.disabled = true;
+
+            loginButtonText.textContent = "VALIDANDO...";
+
+            errorMsg.classList.add("hidden");
+
+            try {
+
+                const response = await fetch(LOGIN_URL, {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        password
+                    })
+
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error || "Senha inválida."
+                    );
+
+                }
+
+                if (!data.token || data.role !== "admin") {
+
+                    throw new Error("Resposta de autenticação inválida.");
+
+                }
+
+                clearPreviousSession();
+
+                sessionStorage.setItem(
+                    "aw_admin_token",
+                    data.token
+                );
+
+                window.location.href = "admin.html";
+
+            } catch (error) {
+
+                console.error("Erro no login:", error);
+
+                if (error instanceof TypeError) {
+
+                    showError("Não foi possível conectar ao servidor.");
+
+                } else {
+
+                    showError(error.message || "Falha na autenticação.");
+
+                }
+
+            } finally {
+
+                loginButton.disabled = false;
+                guestButton.disabled = false;
+
+                loginButtonText.textContent = "ACESSAR PAINEL";
+
+            }
+
         });
 
-        // Login Direto pelo Botão de Convidado
+        // ============================================
+        // ACESSO DE CONVIDADO
+        // ============================================
+
         function loginGuest() {
-            performLogin('guest');
+
+            clearPreviousSession();
+
+            localStorage.setItem("aw_guest_demo", "true");
+
+            window.location.href = "admin.html";
+
         }
 
-        function showError() {
-            errorMsg.classList.remove('hidden');
-            passInput.value = '';
-            setTimeout(() => errorMsg.classList.add('hidden'), 3000);
-        }
     </script>
+
 </body>
 </html>

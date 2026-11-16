@@ -1,265 +1,945 @@
-/**
- * AW TECHNOLOGY - VERCEL STABLE v11.1
- * STATUS: API conectada ao Render + Neon
- */
 
-// ============================================
-// CONFIGURAÇÃO DA API
-// ============================================
-
-const API_URL =
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1"
-        ? "http://localhost:5000/api/products"
-        : "https://aw-technology.onrender.com/api/products";
-
-console.log("API:", API_URL);
+/* =====================================================
+   AW TECHNOLOGY — FRONTEND STABLE v13.0
+   API: Render + Neon
+   Ambiente: Demonstrativo de portfólio
+   ===================================================== */
 
 
+/* =====================================================
+   1. CONFIGURAÇÃO DA API
+   ===================================================== */
 
-// 2. ESTADO GLOBAL
+const API_URL = "https://aw-technology.onrender.com/api/products";
+
+const PLACEHOLDER_IMAGE =
+    "https://placehold.co/400x400/1f2937/white?text=Hardware";
+
+console.log("API configurada:", API_URL);
+
+
+/* =====================================================
+   2. ESTADO GLOBAL
+   ===================================================== */
+
 let products = [];
-let cart = JSON.parse(localStorage.getItem('aw_cart')) || [];
+
+let cart = (() => {
+    try {
+        const savedCart = JSON.parse(
+            localStorage.getItem("aw_cart") || "[]"
+        );
+
+        return Array.isArray(savedCart) ? savedCart : [];
+
+    } catch (error) {
+        console.warn(
+            "Carrinho salvo inválido. Iniciando vazio.",
+            error
+        );
+
+        return [];
+    }
+})();
+
 let currentPage = 1;
+
 const productsPerPage = 9;
 
-// 3. CARREGAR PRODUTOS (NEON VIA API ROUTE)
-async function loadProducts() {
-    try {
-        console.log("Carregando produtos do Neon...");
 
-        const response = await fetch(API_URL);
-        
+/* =====================================================
+   3. FUNÇÕES AUXILIARES
+   ===================================================== */
+
+function formatPrice(value) {
+    const price = Number(value);
+
+    return (Number.isFinite(price) ? price : 0).toLocaleString(
+        "pt-BR",
+        {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }
+    );
+}
+
+// Compatibilidade com chamadas anteriores.
+function paddingPrice(value) {
+    return formatPrice(value);
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => {
+        const entities = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        };
+
+        return entities[character];
+    });
+}
+
+function getSafeImage(image) {
+    if (typeof image !== "string" || !image.trim()) {
+        return PLACEHOLDER_IMAGE;
+    }
+
+    try {
+        const url = new URL(image, window.location.href);
+
+        if (
+            url.protocol === "https:" ||
+            url.protocol === "http:"
+        ) {
+            return url.href;
+        }
+
+    } catch (error) {
+        console.warn("Imagem inválida:", image);
+    }
+
+    return PLACEHOLDER_IMAGE;
+}
+
+function saveCart() {
+    try {
+        localStorage.setItem(
+            "aw_cart",
+            JSON.stringify(cart)
+        );
+
+    } catch (error) {
+        console.error(
+            "Não foi possível salvar o carrinho:",
+            error
+        );
+    }
+}
+
+function getCartTotal() {
+    return cart.reduce((total, item) => {
+        return total + (Number(item.price) || 0);
+    }, 0);
+}
+
+
+/* =====================================================
+   4. CARREGAMENTO DOS PRODUTOS
+   ===================================================== */
+
+async function loadProducts() {
+    const productGrid = document.getElementById("product-grid");
+
+    try {
+        console.log("Carregando produtos pela API...");
+
+        if (productGrid) {
+            productGrid.innerHTML = `
+                <p class="text-center text-gray-500 col-span-full py-20">
+                    Carregando catálogo...
+                </p>
+            `;
+        }
+
+        const response = await fetch(API_URL, {
+            method: "GET",
+
+            headers: {
+                "Accept": "application/json"
+            },
+
+            cache: "no-store"
+        });
+
         if (!response.ok) {
-            throw new Error(`Erro na requisição: ${response.statusText}`);
+            throw new Error(
+                `Erro HTTP ${response.status}: ${response.statusText}`
+            );
         }
 
         const data = await response.json();
-        products = data || [];
 
-        console.log("Produtos carregados do Neon:", products.length);
+        if (!Array.isArray(data)) {
+            throw new Error(
+                "A API retornou um formato de dados inválido."
+            );
+        }
+
+        products = data.filter(product => {
+            return (
+                product &&
+                product.id !== undefined &&
+                Number.isFinite(Number(product.id))
+            );
+        });
+
+        console.log(
+            "Produtos carregados com sucesso:",
+            products.length
+        );
+
+        currentPage = 1;
 
         window.renderProducts();
 
-    } catch (err) {
-        console.error("Erro ao carregar Neon:", err.message);
+    } catch (error) {
+        console.error(
+            "Erro ao carregar produtos:",
+            error
+        );
 
-        const grid = document.getElementById('product-grid');
-        if (grid) {
-            grid.innerHTML = `
-                <p class="text-center text-red-400 col-span-full py-10">
-                    Erro ao carregar produtos.
-                </p>`;
+        if (productGrid) {
+            productGrid.innerHTML = `
+                <div class="col-span-full text-center py-16">
+
+                    <p class="text-red-400 font-semibold mb-3">
+                        Não foi possível carregar os produtos.
+                    </p>
+
+                    <p class="text-gray-500 text-xs mb-5">
+                        Verifique sua conexão e tente novamente.
+                    </p>
+
+                    <button
+                        type="button"
+                        onclick="loadProducts()"
+                        class="primary-button px-6 py-3 rounded-xl text-white text-xs font-bold"
+                    >
+                        TENTAR NOVAMENTE
+                    </button>
+
+                </div>
+            `;
         }
     }
 }
 
-// 4. RENDER PRODUTOS
-window.renderProducts = () => {
-    const productGrid = document.getElementById('product-grid');
+window.loadProducts = loadProducts;
+
+
+/* =====================================================
+   5. RENDERIZAÇÃO DOS PRODUTOS
+   ===================================================== */
+
+window.renderProducts = function () {
+    const productGrid = document.getElementById("product-grid");
+
     if (!productGrid) return;
 
-    productGrid.style.minHeight = '500px';
+    productGrid.style.minHeight = "300px";
 
     if (products.length === 0) {
         productGrid.innerHTML = `
             <p class="text-center text-gray-500 col-span-full py-20">
-                Nenhum produto em estoque.
-            </p>`;
+                Nenhum produto disponível no momento.
+            </p>
+        `;
+
+        window.renderPagination();
+
         return;
     }
 
-    const start = (currentPage - 1) * productsPerPage;
-    const items = products.slice(start, start + productsPerPage);
+    const totalPages = Math.ceil(
+        products.length / productsPerPage
+    );
 
-    productGrid.innerHTML = items.map(p => {
-        const validImage = p.image && p.image.trim() !== ''
-            ? p.image
-            : 'https://placehold.co/400x400/1f2937/white?text=Hardware';
+    currentPage = Math.min(
+        Math.max(currentPage, 1),
+        Math.max(totalPages, 1)
+    );
+
+    const start = (currentPage - 1) * productsPerPage;
+
+    const items = products.slice(
+        start,
+        start + productsPerPage
+    );
+
+    productGrid.innerHTML = items.map(product => {
+        const image = escapeHTML(
+            getSafeImage(product.image)
+        );
+
+        const name = escapeHTML(
+            product.name || "Produto"
+        );
+
+        const description = escapeHTML(
+            product.description || "Sem descrição disponível."
+        );
+
+        const price = formatPrice(product.price);
+        const id = Number(product.id);
 
         return `
-        <div class="card-premium bg-gray-800/40 p-5 rounded-2xl border border-gray-800 flex flex-col h-full group">
-            
-            <div class="product-img-container mb-5 flex items-center justify-center overflow-hidden rounded-xl bg-white/5 h-48">
-                <img src="${validImage}" alt="${p.name}" 
-                    class="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
-                    onerror="this.src='https://placehold.co/400x400/1f2937/white?text=Imagem+Indisponível'">
-            </div>
+            <article class="card-premium p-5 rounded-2xl flex flex-col h-full group">
 
-            <h4 class="text-white font-bold mb-2 line-clamp-2">${p.name}</h4>
+                <div class="product-img-container mb-5">
+                    <img
+                        src="${image}"
+                        alt="${name}"
+                        loading="lazy"
+                        decoding="async"
+                        onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}'"
+                    >
+                </div>
 
-            <p class="text-gray-400 text-xs mb-5 line-clamp-2 leading-relaxed">
-                ${p.description || 'Sem descrição disponível.'}
-            </p>
+                <h3 class="text-white font-bold mb-2 line-clamp-2">
+                    ${name}
+                </h3>
 
-            <div class="mt-auto pt-5 border-t border-gray-700/50">
-                <span class="text-blue-400 text-2xl font-black block mb-4 italic">
-                    R$ ${paddingPrice(p.price)}
-                </span>
+                <p class="text-gray-400 text-xs mb-5 line-clamp-2 leading-relaxed">
+                    ${description}
+                </p>
 
-                <button onclick="addToCart(${p.id})"
-                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.97]">
-                    Adicionar
-                </button>
-            </div>
+                <div class="mt-auto pt-5 border-t border-gray-700/50">
 
-        </div>`;
-    }).join('');
+                    <span class="text-blue-400 text-2xl font-black block mb-4">
+                        R$ ${price}
+                    </span>
+
+                    <button
+                        type="button"
+                        onclick="addToCart(${id})"
+                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.97]"
+                    >
+                        Adicionar ao carrinho
+                    </button>
+
+                </div>
+
+            </article>
+        `;
+    }).join("");
 
     window.renderPagination();
 };
 
-// HELPER: Formatação de Preço unificada
-function paddingPrice(val) {
-    return Number(val || 0).toLocaleString('pt-br', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
 
-// 5. PAGINAÇÃO
-window.renderPagination = () => {
-    const container = document.getElementById('pagination-container');
+/* =====================================================
+   6. PAGINAÇÃO
+   ===================================================== */
+
+window.renderPagination = function () {
+    const container = document.getElementById(
+        "pagination-container"
+    );
+
     if (!container) return;
 
-    const total = Math.ceil(products.length / productsPerPage);
+    const totalPages = Math.ceil(
+        products.length / productsPerPage
+    );
 
-    if (total <= 1) {
-        container.innerHTML = '';
+    if (totalPages <= 1) {
+        container.innerHTML = "";
         return;
     }
 
-    container.innerHTML = Array.from({ length: total }, (_, i) => `
-        <button onclick="changePage(${i + 1})"
-            class="w-11 h-11 rounded-xl font-bold transition-all ${
-                currentPage === i + 1
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                    : 'bg-gray-800 text-gray-500 hover:bg-gray-700'
-            }">
-            ${i + 1}
-        </button>
-    `).join('');
+    container.innerHTML = Array.from(
+        { length: totalPages },
+        (_, index) => {
+            const page = index + 1;
+            const active = currentPage === page;
+
+            return `
+                <button
+                    type="button"
+                    onclick="changePage(${page})"
+                    aria-label="Ir para página ${page}"
+                    aria-current="${active ? "page" : "false"}"
+                    class="w-11 h-11 rounded-xl font-bold transition-all ${
+                        active
+                            ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                            : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                    }"
+                >
+                    ${page}
+                </button>
+            `;
+        }
+    ).join("");
 };
 
-// 6. TROCAR PÁGINA
-window.changePage = (p) => {
-    currentPage = p;
+window.changePage = function (page) {
+    const totalPages = Math.ceil(
+        products.length / productsPerPage
+    );
+
+    if (
+        !Number.isInteger(Number(page)) ||
+        Number(page) < 1 ||
+        Number(page) > totalPages
+    ) {
+        return;
+    }
+
+    currentPage = Number(page);
+
     window.renderProducts();
 
-    const section = document.getElementById('product-grid-section') 
-        || document.getElementById('product-grid');
+    const section =
+        document.getElementById("product-grid-section") ||
+        document.getElementById("product-grid");
 
     if (section) {
-        window.scrollTo({ top: section.offsetTop - 100, behavior: 'smooth' });
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
     }
 };
 
-// 7. CARRINHO
-window.addToCart = (id) => {
-    const item = products.find(p => p.id == id);
 
-    if (item) {
-        cart.push(item);
-        localStorage.setItem('aw_cart', JSON.stringify(cart));
-        window.updateUI();
+/* =====================================================
+   7. CONTROLE DOS PAINÉIS LATERAIS
+   ===================================================== */
 
-        const cartSidebar = document.getElementById('cart-sidebar');
-        const overlay = document.getElementById('menu-overlay');
+function syncOverlay() {
+    const overlay = document.getElementById("menu-overlay");
 
-        if (cartSidebar) cartSidebar.classList.remove('translate-x-full');
+    const mobileMenu = document.getElementById("mobile-menu");
 
-        if (overlay) {
-            overlay.style.opacity = '1';
-            overlay.style.pointerEvents = 'auto';
-        }
+    const cartSidebar = document.getElementById("cart-sidebar");
+
+    if (!overlay) return;
+
+    const menuOpen =
+        mobileMenu &&
+        !mobileMenu.classList.contains("translate-x-full");
+
+    const cartOpen =
+        cartSidebar &&
+        !cartSidebar.classList.contains("translate-x-full");
+
+    const shouldShow = Boolean(menuOpen || cartOpen);
+
+    overlay.style.opacity = shouldShow ? "1" : "0";
+
+    overlay.style.pointerEvents = shouldShow
+        ? "auto"
+        : "none";
+
+    overlay.setAttribute(
+        "aria-hidden",
+        String(!shouldShow)
+    );
+
+    document.body.classList.toggle(
+        "no-scroll",
+        shouldShow
+    );
+}
+
+function closeMobileMenu() {
+    const menu = document.getElementById("mobile-menu");
+
+    if (menu) {
+        menu.classList.add("translate-x-full");
     }
+
+    syncOverlay();
+}
+
+function openMobileMenu() {
+    const menu = document.getElementById("mobile-menu");
+
+    const cartSidebar = document.getElementById("cart-sidebar");
+
+    if (cartSidebar) {
+        cartSidebar.classList.add("translate-x-full");
+    }
+
+    if (menu) {
+        menu.classList.remove("translate-x-full");
+    }
+
+    syncOverlay();
+}
+
+function closeCart() {
+    const cartSidebar = document.getElementById("cart-sidebar");
+
+    if (cartSidebar) {
+        cartSidebar.classList.add("translate-x-full");
+    }
+
+    syncOverlay();
+}
+
+function openCart() {
+    const cartSidebar = document.getElementById("cart-sidebar");
+
+    const mobileMenu = document.getElementById("mobile-menu");
+
+    if (mobileMenu) {
+        mobileMenu.classList.add("translate-x-full");
+    }
+
+    if (cartSidebar) {
+        cartSidebar.classList.remove("translate-x-full");
+    }
+
+    syncOverlay();
+}
+
+
+/* =====================================================
+   8. ADICIONAR PRODUTOS AO CARRINHO
+   ===================================================== */
+
+window.addToCart = function (id) {
+    const item = products.find(product => {
+        return String(product.id) === String(id);
+    });
+
+    if (!item) {
+        console.warn("Produto não encontrado:", id);
+        return;
+    }
+
+    cart.push(item);
+
+    saveCart();
+
+    window.updateUI();
+
+    openCart();
 };
 
-window.removeFromCart = (i) => {
-    cart.splice(i, 1);
-    localStorage.setItem('aw_cart', JSON.stringify(cart));
+
+/* =====================================================
+   9. REMOVER PRODUTOS DO CARRINHO
+   ===================================================== */
+
+window.removeFromCart = function (index) {
+    const position = Number(index);
+
+    if (
+        !Number.isInteger(position) ||
+        position < 0 ||
+        position >= cart.length
+    ) {
+        return;
+    }
+
+    cart.splice(position, 1);
+
+    saveCart();
+
     window.updateUI();
 };
 
-// 8. UI
-window.updateUI = () => {
-    document.querySelectorAll('#cart-count, #cart-count-mobile')
-        .forEach(c => c.innerText = cart.length);
 
-    const total = cart.reduce((acc, i) => acc + (Number(i.price) || 0), 0);
+/* =====================================================
+   10. LIMPAR COMPLETAMENTE O CARRINHO
+   ===================================================== */
 
-    const totalEl = document.getElementById('cart-total');
-    if (totalEl) {
-        totalEl.innerText = `R$ ${paddingPrice(total)}`;
+window.clearCart = function () {
+    // Esvazia o estado em memória.
+    cart = [];
+
+    // Atualiza o armazenamento local.
+    saveCart();
+
+    // Garante que o armazenamento contenha um array vazio.
+    localStorage.setItem("aw_cart", "[]");
+
+    // Atualiza quantidades, valores e produtos exibidos.
+    window.updateUI();
+
+    console.log(
+        "Carrinho demonstrativo finalizado e limpo."
+    );
+};
+
+
+/* =====================================================
+   11. ATUALIZAÇÃO DA INTERFACE DO CARRINHO
+   ===================================================== */
+
+window.updateUI = function () {
+    const total = getCartTotal();
+
+    // Quantidade de produtos.
+    document.querySelectorAll(
+        "#cart-count, #cart-count-mobile"
+    ).forEach(element => {
+        element.textContent = cart.length;
+    });
+
+    // Total.
+    const totalElement = document.getElementById("cart-total");
+
+    if (totalElement) {
+        totalElement.textContent = `R$ ${formatPrice(total)}`;
     }
 
-    const container = document.getElementById('cart-items');
+    // Subtotal.
+    const subtotalElement = document.getElementById(
+        "cart-subtotal"
+    );
 
-    if (container) {
-        container.innerHTML = cart.length ? cart.map((item, i) => `
-            <div class="flex items-center gap-4 bg-gray-900/80 p-3 rounded-xl border border-gray-800">
+    if (subtotalElement) {
+        subtotalElement.textContent = `R$ ${formatPrice(total)}`;
+    }
 
-                <img src="${item.image}" class="w-12 h-12 object-contain bg-white/10 rounded-lg"
-                    onerror="this.src='https://placehold.co/100?text=IMG'">
+    // Produtos do carrinho.
+    const container = document.getElementById("cart-items");
 
-                <div class="flex-1 min-w-0">
-                    <p class="text-[11px] font-bold text-white truncate">${item.name}</p>
-                    <p class="text-blue-400 text-xs font-bold">
-                        R$ ${paddingPrice(item.price)}
-                    </p>
+    if (!container) return;
+
+    if (cart.length === 0) {
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center text-center py-12">
+
+                <div class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-5">
+                    <svg class="w-7 h-7 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path
+                            stroke-width="1.6"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M9 21h.01M17 21h.01"
+                        />
+                    </svg>
                 </div>
 
-                <button onclick="removeFromCart(${i})"
-                    class="text-gray-500 hover:text-red-500 p-2 transition-colors">
+                <h3 class="text-sm font-bold text-white">
+                    Seu carrinho está vazio
+                </h3>
+
+                <p class="text-xs text-gray-500 mt-2 max-w-[230px] leading-6">
+                    Explore nosso catálogo e adicione produtos para montar seu pedido.
+                </p>
+
+                <a
+                    href="#product-grid-section"
+                    id="cart-empty-continue"
+                    class="mt-5 text-xs font-bold text-blue-400 hover:text-blue-300 transition"
+                >
+                    EXPLORAR PRODUTOS
+                </a>
+
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML = cart.map((item, index) => {
+        const image = escapeHTML(
+            getSafeImage(item.image)
+        );
+
+        const name = escapeHTML(
+            item.name || "Produto"
+        );
+
+        return `
+            <article class="flex items-center gap-4 bg-gray-900/80 p-3 rounded-xl border border-gray-800">
+
+                <img
+                    src="${image}"
+                    alt="${name}"
+                    class="w-14 h-14 object-contain bg-white/10 rounded-lg"
+                    loading="lazy"
+                    decoding="async"
+                    onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}'"
+                >
+
+                <div class="flex-1 min-w-0">
+
+                    <p class="text-[11px] font-bold text-white truncate">
+                        ${name}
+                    </p>
+
+                    <p class="text-blue-400 text-xs font-bold mt-1">
+                        R$ ${formatPrice(item.price)}
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    onclick="removeFromCart(${index})"
+                    aria-label="Remover produto do carrinho"
+                    class="text-gray-500 hover:text-red-500 p-2 transition-colors"
+                >
                     ✕
                 </button>
 
-            </div>
-        `).join('') : `
-            <p class="text-center text-gray-600 py-10 uppercase text-xs tracking-widest">
-                Carrinho Vazio
-            </p>`;
-    }
+            </article>
+        `;
+    }).join("");
 };
 
-// 9. INIT
-document.addEventListener('DOMContentLoaded', () => {
+
+/* =====================================================
+   12. FINALIZAÇÃO DEMONSTRATIVA
+   ===================================================== */
+
+function openDemoCheckout() {
+    if (cart.length === 0) {
+        alert("Adicione pelo menos um produto ao carrinho.");
+        return;
+    }
+
+    const modal = document.getElementById(
+        "demo-checkout-modal"
+    );
+
+    const itemsElement = document.getElementById(
+        "demo-modal-items"
+    );
+
+    const totalElement = document.getElementById(
+        "demo-modal-total"
+    );
+
+    if (!modal) {
+        alert("Modal de finalização não encontrado.");
+        return;
+    }
+
+    // Atualiza os dados da demonstração.
+    if (itemsElement) {
+        itemsElement.textContent = cart.length;
+    }
+
+    if (totalElement) {
+        totalElement.textContent =
+            `R$ ${formatPrice(getCartTotal())}`;
+    }
+
+    // Exibe o modal.
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    modal.setAttribute("aria-hidden", "false");
+
+    document.body.classList.add("no-scroll");
+
+    document.getElementById(
+        "demo-modal-finish"
+    )?.focus();
+}
+
+function closeDemoCheckout() {
+    const modal = document.getElementById(
+        "demo-checkout-modal"
+    );
+
+    if (!modal) return;
+
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+
+    modal.setAttribute("aria-hidden", "true");
+
+    syncOverlay();
+}
+
+
+/* =====================================================
+   13. CONFIRMAR FINALIZAÇÃO E LIMPAR CARRINHO
+   ===================================================== */
+
+function finishDemoCheckout() {
+    if (cart.length === 0) {
+        closeDemoCheckout();
+        closeCart();
+        return;
+    }
+
+    // 1. Fecha o modal.
+    closeDemoCheckout();
+
+    // 2. Limpa todos os produtos.
+    window.clearCart();
+
+    // 3. Fecha o painel lateral.
+    closeCart();
+
+    // 4. Atualiza o estado de rolagem.
+    document.body.classList.remove("no-scroll");
+
+    console.log(
+        "Demonstração concluída. Carrinho zerado."
+    );
+}
+
+
+/* =====================================================
+   14. INICIALIZAÇÃO
+   ===================================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Carregar catálogo.
     loadProducts();
 
-    const overlay = document.getElementById('menu-overlay');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const cartSidebar = document.getElementById('cart-sidebar');
-
-    const toggle = (el, isOpen) => {
-        if (!el || !overlay) return;
-
-        el.classList.toggle('translate-x-full', !isOpen);
-        overlay.style.opacity = isOpen ? '1' : '0';
-        overlay.style.pointerEvents = isOpen ? 'auto' : 'none';
-    };
-
-    document.getElementById('menu-btn')?.addEventListener('click', () => toggle(mobileMenu, true));
-    document.getElementById('close-btn')?.addEventListener('click', () => toggle(mobileMenu, false));
-    document.getElementById('cart-btn')?.addEventListener('click', () => toggle(cartSidebar, true));
-    document.getElementById('cart-btn-mobile-trigger')?.addEventListener('click', () => toggle(cartSidebar, true));
-    document.getElementById('close-cart')?.addEventListener('click', () => toggle(cartSidebar, false));
-
-    overlay?.addEventListener('click', () => {
-        toggle(mobileMenu, false);
-        toggle(cartSidebar, false);
-    });
-
-    document.getElementById('checkout-btn')?.addEventListener('click', () => {
-        if (!cart.length) return alert("Carrinho vazio!");
-
-        const total = cart.reduce((acc, i) => acc + (Number(i.price) || 0), 0);
-
-        const msg = `Olá! Gostaria de encomendar:\n\n${cart.map(i => `• ${i.name}`).join('\n')}\n\n*Total: R$ ${paddingPrice(total)}*`;
-
-        window.open(`https://wa.me/5511985878638?text=${encodeURIComponent(msg)}`, '_blank');
-
-        cart = [];
-        localStorage.removeItem('aw_cart');
-        window.updateUI();
-        toggle(cartSidebar, false);
-    });
-
+    // Restaurar interface do carrinho.
     window.updateUI();
+
+
+    /* -----------------------------------------------
+       MENU MOBILE
+       ----------------------------------------------- */
+
+    document.getElementById("menu-btn")?.addEventListener(
+        "click",
+        openMobileMenu
+    );
+
+    document.getElementById("close-btn")?.addEventListener(
+        "click",
+        closeMobileMenu
+    );
+
+
+    /* -----------------------------------------------
+       ABRIR CARRINHO
+       ----------------------------------------------- */
+
+    document.getElementById("cart-btn")?.addEventListener(
+        "click",
+        openCart
+    );
+
+    document.getElementById(
+        "cart-btn-mobile-trigger"
+    )?.addEventListener(
+        "click",
+        openCart
+    );
+
+
+    /* -----------------------------------------------
+       FECHAR CARRINHO
+       ----------------------------------------------- */
+
+    document.getElementById("close-cart")?.addEventListener(
+        "click",
+        closeCart
+    );
+
+
+    /* -----------------------------------------------
+       SOBREPOSIÇÃO
+       ----------------------------------------------- */
+
+    document.getElementById("menu-overlay")?.addEventListener(
+        "click",
+        () => {
+            closeMobileMenu();
+            closeCart();
+        }
+    );
+
+
+    /* -----------------------------------------------
+       CONTINUAR COMPRANDO
+       ----------------------------------------------- */
+
+    document.getElementById(
+        "cart-continue-shopping"
+    )?.addEventListener(
+        "click",
+        closeCart
+    );
+
+    // Delegação: funciona mesmo quando o link é recriado
+    // após a remoção do último produto.
+    document.getElementById("cart-items")?.addEventListener(
+        "click",
+        event => {
+            if (event.target.closest("#cart-empty-continue")) {
+                closeCart();
+            }
+        }
+    );
+
+
+    /* -----------------------------------------------
+       FINALIZAÇÃO DEMONSTRATIVA
+       ----------------------------------------------- */
+
+    document.getElementById("checkout-btn")?.addEventListener(
+        "click",
+        openDemoCheckout
+    );
+
+
+    /* -----------------------------------------------
+       FECHAR MODAL SEM LIMPAR O CARRINHO
+       ----------------------------------------------- */
+
+    document.getElementById(
+        "demo-modal-close"
+    )?.addEventListener(
+        "click",
+        closeDemoCheckout
+    );
+
+    document.getElementById(
+        "demo-modal-backdrop"
+    )?.addEventListener(
+        "click",
+        closeDemoCheckout
+    );
+
+
+    /* -----------------------------------------------
+       CONFIRMAR E LIMPAR O CARRINHO
+       ----------------------------------------------- */
+
+    document.getElementById(
+        "demo-modal-finish"
+    )?.addEventListener(
+        "click",
+        finishDemoCheckout
+    );
+
+
+    /* -----------------------------------------------
+       FECHAR MENU AO NAVEGAR
+       ----------------------------------------------- */
+
+    document.getElementById("mobile-menu")?.addEventListener(
+        "click",
+        event => {
+            if (event.target.closest("a[href]")) {
+                closeMobileMenu();
+            }
+        }
+    );
+
+
+    /* -----------------------------------------------
+       TECLA ESC
+       ----------------------------------------------- */
+
+    document.addEventListener("keydown", event => {
+        if (event.key !== "Escape") return;
+
+        const modal = document.getElementById(
+            "demo-checkout-modal"
+        );
+
+        if (modal && !modal.classList.contains("hidden")) {
+            closeDemoCheckout();
+        }
+
+        closeMobileMenu();
+        closeCart();
+    });
+
+
+    console.log(
+        "AW TECHNOLOGY: frontend v13.0 inicializado."
+    );
 });

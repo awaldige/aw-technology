@@ -1,36 +1,198 @@
+
 <!DOCTYPE html>
-<html lang="pt-br" class="scroll-smooth">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="AW TECHNOLOGY - Elite hardware e engenharia de performance para o seu setup.">
-    <title>AW TECHNOLOGY | Premium Hardware</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="AW TECHNOLOGY — Hardware premium, tecnologia e soluções de alta performance para seu setup.">
+
+    <meta name="theme-color" content="#090B10">
+
+    <title>AW TECHNOLOGY | Hardware Premium</title>
 
     <link rel="icon" type="image/png" href="favicon.png?v=2">
     <link rel="apple-touch-icon" href="favicon.png">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        
-        /* Controle de visibilidade Admin - Atualizado */
-        .admin-only { display: none !important; }
-        body.is-admin .admin-only { display: block !important; }
-        /* Para itens que precisam manter o flex (como no menu desktop) */
-        body.is-admin .admin-only-flex { display: flex !important; }
-        
-        .card-premium {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        :root {
+            color-scheme: dark;
+            --background: #090B10;
+            --surface: #11151D;
+            --surface-light: #191F2A;
+            --border: rgba(255,255,255,.08);
+            --blue: #3478F6;
+            --blue-light: #68A0FF;
+            --text-muted: #929BAA;
         }
-        .card-premium:hover { 
-            box-shadow: 0 0 40px rgba(37, 99, 235, 0.2); 
-            transform: translateY(-4px);
-            border-color: rgba(59, 130, 246, 0.5);
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--background);
+            color: #F5F7FA;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        a, button {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .admin-only {
+            display: none !important;
+        }
+
+        body.is-admin .admin-only {
+            display: block !important;
+        }
+
+        body.is-admin .admin-only-flex {
+            display: flex !important;
+        }
+
+        .site-header {
+            background: rgba(9, 11, 16, .88);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .brand-gradient {
+            background: linear-gradient(110deg, #FFFFFF 15%, #AAB8CE 55%, #3478F6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-section {
+            position: relative;
+            isolation: isolate;
+            background:
+                radial-gradient(ellipse at 78% 35%, rgba(52,120,246,.16), transparent 38%),
+                radial-gradient(ellipse at 15% 85%, rgba(52,120,246,.07), transparent 35%),
+                linear-gradient(145deg, #10151F 0%, #090B10 65%);
+        }
+
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            opacity: .16;
+            background-image:
+                linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+            background-size: 58px 58px;
+            mask-image: linear-gradient(to bottom, black, transparent 90%);
+        }
+
+        .hero-orbit {
+            position: absolute;
+            width: 440px;
+            height: 440px;
+            right: -110px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 1px solid rgba(52,120,246,.13);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .hero-orbit::before,
+        .hero-orbit::after {
+            content: "";
+            position: absolute;
+            border: 1px solid rgba(52,120,246,.12);
+            border-radius: 50%;
+            inset: 35px;
+        }
+
+        .hero-orbit::after {
+            inset: 80px;
+        }
+
+        .hero-symbol {
+            filter: drop-shadow(0 0 35px rgba(52,120,246,.28));
+        }
+
+        .eyebrow {
+            color: var(--blue-light);
+            letter-spacing: .24em;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .primary-button {
+            background: linear-gradient(110deg, #3478F6, #2863D5);
+            box-shadow: 0 10px 35px rgba(52,120,246,.20);
+            transition: .25s ease;
+        }
+
+        .primary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 40px rgba(52,120,246,.32);
+        }
+
+        .secondary-button {
+            border: 1px solid rgba(255,255,255,.14);
+            background: rgba(255,255,255,.035);
+            transition: .25s ease;
+        }
+
+        .secondary-button:hover {
+            border-color: rgba(104,160,255,.55);
+            background: rgba(52,120,246,.08);
+        }
+
+        .benefit-card {
+            background: rgba(255,255,255,.025);
+            border: 1px solid var(--border);
+            transition: .25s ease;
+        }
+
+        .benefit-card:hover {
+            background: rgba(255,255,255,.045);
+            border-color: rgba(52,120,246,.25);
+        }
+
+        .section-label {
+            color: var(--blue-light);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+        }
+
+        .card-premium {
+            background: linear-gradient(145deg, #171D27, #10141C);
+            border: 1px solid rgba(255,255,255,.075);
+            transition: all .3s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .card-premium:hover {
+            transform: translateY(-5px);
+            border-color: rgba(52,120,246,.42);
+            box-shadow: 0 18px 45px rgba(0,0,0,.30);
         }
 
         .product-img-container {
@@ -38,162 +200,617 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #0f172a;
             overflow: hidden;
-            border-radius: 0.75rem;
+            border-radius: 12px;
+            background: #0C1017;
+            border: 1px solid rgba(255,255,255,.045);
         }
+
         .product-img-container img {
             max-width: 90%;
             max-height: 90%;
             object-fit: contain;
+            transition: transform .45s ease;
         }
 
-        #cart-items::-webkit-scrollbar { width: 4px; }
-        #cart-items::-webkit-scrollbar-track { background: transparent; }
-        #cart-items::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        .card-premium:hover .product-img-container img {
+            transform: scale(1.06);
+        }
+
+        #cart-items::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #cart-items::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #cart-items::-webkit-scrollbar-thumb {
+            background: #394252;
+            border-radius: 10px;
+        }
+
+        #menu-overlay {
+            transition: opacity .3s ease;
+        }
+
+        .footer-link {
+            transition: color .2s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--blue-light);
+        }
+
+        ::selection {
+            background: rgba(52,120,246,.35);
+            color: white;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--blue-light);
+            outline-offset: 4px;
+        }
+
+        @media (max-width: 640px) {
+            .hero-orbit {
+                width: 300px;
+                height: 300px;
+                right: -190px;
+                opacity: .7;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-white font-sans antialiased overflow-x-hidden">
-    
-    <header class="bg-gray-900/80 backdrop-blur-xl sticky top-0 z-50 py-4 border-b border-gray-800">
-        <div class="container mx-auto flex items-center justify-between px-4">
-            <h1 id="admin-logo" class="text-xl md:text-2xl font-extrabold tracking-tighter cursor-pointer select-none active:scale-95 transition-transform">
-                <span class="text-white">AW</span> <span class="text-blue-500">TECHNOLOGY</span>
-            </h1>
-            
-            <nav class="hidden md:block">
-                <ul class="flex space-x-8 text-sm font-medium items-center">
-                    <li><a href="#" class="transition hover:text-blue-400">Home</a></li>
-                    <li><a href="#product-grid-section" class="transition hover:text-blue-400 text-gray-300">Produtos</a></li>
-                    <li><a href="admin.html" class="admin-only transition text-blue-500 hover:text-blue-400 font-bold border border-blue-500/30 px-3 py-1 rounded-lg italic">Painel ADM</a></li>
-                    <li class="relative ml-4">
-                        <button id="cart-btn" class="p-2 bg-gray-800 rounded-full hover:bg-blue-600 transition relative group">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+
+<body class="antialiased overflow-x-hidden">
+
+    <!-- CABEÇALHO -->
+    <header class="site-header sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-5 md:px-8 h-20 flex items-center justify-between">
+
+            <a href="index.html" id="admin-logo" class="flex flex-col select-none">
+                <span class="text-xl md:text-2xl font-extrabold tracking-tight leading-none">
+                    AW <span class="brand-gradient">TECHNOLOGY</span>
+                </span>
+                <span class="text-[8px] text-gray-500 font-bold tracking-[.34em] mt-1.5">
+                    PREMIUM HARDWARE
+                </span>
+            </a>
+
+            <nav class="hidden md:block" aria-label="Navegação principal">
+                <ul class="flex items-center gap-9 text-xs font-semibold text-gray-400">
+                    <li>
+                        <a href="#" class="hover:text-white transition">Início</a>
+                    </li>
+                    <li>
+                        <a href="#product-grid-section" class="hover:text-white transition">Produtos</a>
+                    </li>
+                    <li>
+                        <a href="admin.html" class="admin-only text-blue-400 hover:text-blue-300 font-bold">
+                            Painel ADM
+                        </a>
+                    </li>
+                    <li>
+                        <button id="cart-btn" aria-label="Abrir carrinho" class="relative p-3 rounded-xl bg-white/5 border border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                             </svg>
-                            <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-500 text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-gray-900">0</span>
+                            <span id="cart-count" class="absolute -top-2 -right-2 min-w-5 h-5 flex items-center justify-center bg-blue-600 text-white text-[10px] font-bold px-1 rounded-full border-2 border-[#090B10]">0</span>
                         </button>
                     </li>
                 </ul>
             </nav>
 
+            <!-- CONTROLES MOBILE -->
             <div class="flex items-center gap-2 md:hidden">
-                <button id="cart-btn-mobile-trigger" class="p-2 bg-gray-800 rounded-full relative active:scale-90 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <button id="cart-btn-mobile-trigger" aria-label="Abrir carrinho" class="p-2.5 rounded-xl bg-white/5 border border-white/10 relative">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <span id="cart-count-mobile" class="absolute -top-1 -right-1 bg-blue-500 text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
-                </                <button id="menu-btn" class="text-white p-2">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    <span id="cart-count-mobile" class="absolute -top-2 -right-2 min-w-5 h-5 flex items-center justify-center bg-blue-600 text-white text-[10px] font-bold px-1 rounded-full">0</span>
+                </button>
+
+                <button id="menu-btn" aria-label="Abrir menu" class="text-white p-2.5 rounded-xl hover:bg-white/5 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M4 7h16M4 12h16M4 17h16"/>
                     </svg>
                 </button>
             </div>
         </div>
     </header>
 
-    <div id="menu-overlay" class="fixed inset-0 bg-black/60 opacity-0 pointer-events-none z-[55] backdrop-blur-sm transition-opacity duration-300"></div>
+    <!-- SOBREPOSIÇÃO DOS MENUS -->
+    <div id="menu-overlay" class="fixed inset-0 bg-black/75 opacity-0 pointer-events-none z-[55] backdrop-blur-sm"></div>
 
-    <aside id="mobile-menu" class="fixed inset-y-0 right-0 w-72 bg-gray-950 z-[60] translate-x-full transition-transform duration-300 border-l border-gray-800">
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
-            <span class="font-bold text-blue-500 tracking-widest text-xs italic">NAVEGAÇÃO</span>
-            <button id="close-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+    <!-- MENU MOBILE -->
+    <aside id="mobile-menu" class="fixed inset-y-0 right-0 w-[ min(82vw, 340px)] bg-[#10151E] z-[60] translate-x-full transition-transform duration-300 border-l border-white/10" aria-label="Menu mobile">
+        <div class="flex justify-between items-center p-6 border-b border-white/10">
+            <div>
+                <span class="text-sm font-extrabold">AW <span class="text-blue-400">TECHNOLOGY</span></span>
+                <p class="text-[9px] text-gray-500 tracking-[.2em] mt-1">NAVEGAÇÃO</p>
+            </div>
+            <button id="close-btn" aria-label="Fechar menu" class="text-gray-400 hover:text-white text-3xl">&times;</button>
         </div>
-        <ul class="flex flex-col p-6 space-y-3">
-            <li><a href="#" class="block p-4 bg-gray-900 rounded-xl">Home</a></li>
-            <li><a href="#product-grid-section" class="block p-4 bg-gray-900 rounded-xl">Produtos</a></li>
-            <li><a href="admin.html" class="admin-only block p-4 text-blue-500 font-bold border border-blue-500/20 rounded-xl italic bg-blue-500/5">📦 Painel ADM</a></li>
+
+        <ul class="flex flex-col p-5 gap-2 text-sm font-semibold">
+            <li><a href="#" class="block p-4 rounded-xl bg-white/5 hover:bg-white/10">Início</a></li>
+            <li><a href="#product-grid-section" class="block p-4 rounded-xl bg-white/5 hover:bg-white/10">Produtos</a></li>
+            <li><a href="admin.html" class="admin-only block p-4 rounded-xl text-blue-400 bg-blue-500/5">Painel administrativo</a></li>
         </ul>
     </aside>
 
-    <aside id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-96 bg-gray-950 z-[60] translate-x-full transition-transform duration-300 border-l border-gray-800 flex flex-col">
-        <div class="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-950">
-            <h3 class="font-black text-white italic">MEU CARRINHO</h3>
-            <button id="close-cart" class="text-gray-500 hover:text-white text-3xl">&times;</button>
-        </div>
-        
-        <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
 
-        <div class="p-6 border-t border-gray-800 bg-gray-900/50">
-            <div class="flex justify-between items-center mb-6">
-                <span class="text-gray-400 text-sm uppercase font-bold">Total Estimado</span>
-                <span id="cart-total" class="text-2xl font-black text-blue-400">R$ 0,00</span>
+<!-- CARRINHO PREMIUM -->
+<aside
+    id="cart-sidebar"
+    class="fixed inset-y-0 right-0 w-full md:w-[440px] z-[60] translate-x-full transition-transform duration-300 border-l border-white/10 flex flex-col"
+    aria-label="Carrinho de compras"
+    aria-modal="true"
+>
+    <!-- CABEÇALHO -->
+    <div class="cart-header p-5 md:p-6 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17"/>
+                </svg>
             </div>
-            <button id="checkout-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/20">
-                FINALIZAR PEDIDO (WHATSAPP)
-            </button>
-        </div>
-    </aside>
 
-    <main class="container mx-auto px-4 py-12">
-        <section id="product-grid-section" class="scroll-mt-24">
-            <div class="flex items-center justify-between mb-10">
-                <h2 class="text-3xl font-black italic uppercase tracking-tighter">Hardware <span class="text-blue-500">Premium</span></h2>
+            <div>
+                <h2 class="text-base font-extrabold text-white tracking-tight">
+                    Meu carrinho
+                </h2>
+                <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">
+                    Resumo do pedido
+                </p>
             </div>
-            
-            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
+        <button
+            id="close-cart"
+            type="button"
+            aria-label="Fechar carrinho"
+            class="w-10 h-10 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition text-2xl"
+        >
+            &times;
+        </button>
+    </div>
+
+    <!-- IDENTIFICAÇÃO DA DEMONSTRAÇÃO -->
+    <div class="px-5 pt-4">
+        <div class="flex items-center justify-between">
+            <span class="cart-section-label">Seus produtos</span>
+            <span class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">
+                AW TECHNOLOGY
+            </span>
+        </div>
+    </div>
+
+    <!-- PRODUTOS DO CARRINHO -->
+    <div
+        id="cart-items"
+        class="flex-1 overflow-y-auto p-5 space-y-3"
+        aria-live="polite"
+    >
+        <div class="flex flex-col items-center justify-center text-center py-12">
+            <div class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-5">
+                <svg class="w-7 h-7 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M9 21h.01M17 21h.01"/>
+                </svg>
+            </div>
+
+            <h3 class="text-sm font-bold text-white">
+                Seu carrinho está vazio
+            </h3>
+
+            <p class="text-xs text-gray-500 mt-2 max-w-[230px] leading-6">
+                Explore nosso catálogo e adicione produtos para montar seu pedido.
+            </p>
+
+            <a
+                href="#product-grid-section"
+                id="cart-empty-continue"
+                class="mt-5 text-xs font-bold text-blue-400 hover:text-blue-300 transition"
+            >
+                EXPLORAR PRODUTOS
+            </a>
+        </div>
+    </div>
+
+    <!-- RESUMO DO PEDIDO -->
+    <div class="cart-summary p-5 md:p-6">
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-xs text-gray-400">Subtotal</span>
+            <span id="cart-subtotal" class="text-xs font-semibold text-gray-300">
+                R$ 0,00
+            </span>
+        </div>
+
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-xs text-gray-400">Frete</span>
+            <span class="text-xs font-semibold text-gray-400">
+                Não calculado
+            </span>
+        </div>
+
+        <div class="border-t border-white/10 pt-4 mb-5 flex items-center justify-between gap-3">
+            <div>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">
+                    Total estimado
+                </p>
+                <p class="text-[9px] text-gray-600 mt-1">
+                    Valores ilustrativos
+                </p>
+            </div>
+
+            <span
+                id="cart-total"
+                class="text-2xl font-extrabold text-blue-400 tracking-tight"
+            >
+                R$ 0,00
+            </span>
+        </div>
+
+        <div class="cart-demo-notice p-3 mb-4 flex gap-3 items-start">
+            <svg class="w-4 h-4 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 9v4m0 4h.01M10.3 3.9L2.6 17.2A2 2 0 004.3 20h15.4a2 2 0 001.7-2.8L13.7 3.9a2 2 0 00-3.4 0z"/>
+            </svg>
+
+            <p class="text-[10px] text-blue-200/80 leading-5">
+                Ambiente demonstrativo de portfólio. Não são realizadas vendas ou cobranças reais.
+            </p>
+        </div>
+
+        <button
+            id="checkout-btn"
+            type="button"
+            class="demo-checkout-button w-full py-4 rounded-xl text-white text-xs font-extrabold tracking-wider flex items-center justify-center gap-2"
+        >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                    d="M5 12l4 4L19 6"/>
+            </svg>
+            FINALIZAR PEDIDO DEMONSTRATIVO
+        </button>
+
+        <button
+            type="button"
+            id="cart-continue-shopping"
+            class="w-full text-center text-[10px] text-gray-500 hover:text-white transition mt-4 font-bold tracking-wider"
+        >
+            CONTINUAR COMPRANDO
+        </button>
+    </div>
+</aside>
+
+<!-- MODAL DE FINALIZAÇÃO DEMONSTRATIVA -->
+<div
+    id="demo-checkout-modal"
+    class="hidden fixed inset-0 z-[80] items-center justify-center p-5"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="demo-modal-title"
+    aria-hidden="true"
+>
+    <button
+        type="button"
+        id="demo-modal-backdrop"
+        class="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-default"
+        aria-label="Fechar janela"
+    ></button>
+
+    <div class="demo-modal-card relative w-full max-w-md rounded-2xl border border-white/10 bg-[#121925] shadow-2xl p-6 md:p-8">
+        <button
+            id="demo-modal-close"
+            type="button"
+            aria-label="Fechar"
+            class="absolute top-4 right-4 text-gray-500 hover:text-white text-2xl"
+        >
+            &times;
+        </button>
+
+        <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-5">
+            <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M5 12l4 4L19 6"/>
+            </svg>
+        </div>
+
+        <p class="text-center text-[10px] font-extrabold text-blue-400 tracking-[.2em] uppercase mb-3">
+            AW TECHNOLOGY
+        </p>
+
+        <h2 id="demo-modal-title" class="text-xl md:text-2xl text-center font-extrabold text-white">
+            Simulação de pedido
+        </h2>
+
+        <p class="text-sm text-gray-400 text-center leading-7 mt-3">
+            Você chegou à etapa de finalização da compra demonstrativa.
+        </p>
+
+        <div class="rounded-xl bg-black/20 border border-white/10 p-5 mt-6">
+            <div class="flex justify-between items-center gap-3">
+                <span class="text-xs text-gray-400">Itens no carrinho</span>
+                <strong id="demo-modal-items" class="text-sm text-white">0</strong>
+            </div>
+
+            <div class="border-t border-white/10 my-4"></div>
+
+            <div class="flex justify-between items-center gap-3">
+                <span class="text-xs text-gray-400">Total simulado</span>
+                <strong id="demo-modal-total" class="text-lg text-blue-400">R$ 0,00</strong>
+            </div>
+        </div>
+
+        <div class="mt-5 rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
+            <p class="text-xs text-blue-200 leading-6 text-center">
+                Esta é uma demonstração de portfólio. Nenhum pedido foi registrado, nenhum pagamento foi processado e nenhum dado de compra foi enviado.
+            </p>
+        </div>
+
+        <button
+            id="demo-modal-finish"
+            type="button"
+            class="primary-button w-full rounded-xl py-4 mt-6 text-xs font-extrabold text-white tracking-wider"
+        >
+            ENTENDI — VOLTAR À LOJA
+        </button>
+    </div>
+</div>
+
+    <main>
+
+        <!-- HERO -->
+        <section class="hero-section overflow-hidden">
+            <div class="hero-grid"></div>
+            <div class="hero-orbit"></div>
+
+            <div class="max-w-7xl mx-auto px-5 md:px-8 py-20 md:py-28 lg:py-32">
+                <div class="grid lg:grid-cols-2 gap-14 items-center">
+
+                    <div class="max-w-2xl">
+                        <div class="inline-flex items-center gap-2 border border-blue-500/20 bg-blue-500/5 rounded-full px-4 py-2 mb-8">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                            <span class="eyebrow">TECNOLOGIA E PERFORMANCE</span>
+                        </div>
+
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-[1.08] tracking-[-.055em]">
+                            Tecnologia que
+                            <span class="block brand-gradient">eleva o padrão.</span>
+                        </h1>
+
+                        <p class="text-gray-400 text-sm md:text-base leading-8 mt-7 max-w-xl">
+                            Explore uma seleção de hardware e componentes para quem valoriza desempenho, qualidade e tecnologia.
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row gap-3 mt-9">
+                            <a href="#product-grid-section" class="primary-button inline-flex justify-center items-center gap-3 px-7 py-4 rounded-xl text-white text-xs font-extrabold tracking-wider">
+                                EXPLORAR PRODUTOS
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/>
+                                </svg>
+                            </a>
+
+                            <a href="#sobre-aw" class="secondary-button inline-flex justify-center items-center px-7 py-4 rounded-xl text-gray-300 text-xs font-bold tracking-wider">
+                                CONHEÇA A AW
+                            </a>
+                        </div>
+
+                        <div class="flex flex-wrap gap-8 mt-12 pt-8 border-t border-white/10">
+                            <div>
+                                <p class="text-xl font-extrabold text-white">Premium</p>
+                                <p class="text-[9px] text-gray-500 uppercase tracking-widest mt-1">Identidade</p>
+                            </div>
+                            <div>
+                                <p class="text-xl font-extrabold text-white">Hardware</p>
+                                <p class="text-[9px] text-gray-500 uppercase tracking-widest mt-1">Tecnologia</p>
+                            </div>
+                            <div>
+                                <p class="text-xl font-extrabold text-white">Performance</p>
+                                <p class="text-[9px] text-gray-500 uppercase tracking-widest mt-1">Experiência</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ELEMENTO VISUAL ABSTRATO -->
+                    <div class="hidden lg:flex justify-center items-center relative min-h-[390px]">
+                        <div class="absolute w-[350px] h-[350px] rounded-full border border-blue-500/10"></div>
+                        <div class="absolute w-[270px] h-[270px] rounded-full border border-blue-500/15"></div>
+                        <div class="absolute w-[190px] h-[190px] rounded-full bg-blue-500/10 blur-3xl"></div>
+
+                        <svg class="hero-symbol w-64 h-64 relative" viewBox="0 0 240 240" fill="none" aria-hidden="true">
+                            <path d="M120 18L210 69V171L120 222L30 171V69L120 18Z" stroke="#3478F6" stroke-opacity=".7" stroke-width="1.5"/>
+                            <path d="M120 43L188 81V159L120 197L52 159V81L120 43Z" stroke="#68A0FF" stroke-opacity=".55" stroke-width="1.5"/>
+                            <path d="M120 72L162 96V144L120 168L78 144V96L120 72Z" fill="#3478F6" fill-opacity=".13" stroke="#68A0FF" stroke-width="1.5"/>
+                            <path d="M120 95L140 107V133L120 145L100 133V107L120 95Z" fill="#3478F6" fill-opacity=".45" stroke="#93BCFF" stroke-width="1.5"/>
+                            <path d="M120 18V43M210 69L188 81M210 171L188 159M120 222V197M30 171L52 159M30 69L52 81" stroke="#3478F6" stroke-opacity=".65"/>
+                            <circle cx="120" cy="120" r="5" fill="#93BCFF"/>
+                        </svg>
+
+                        <div class="absolute bottom-4 right-0 bg-[#111722]/90 border border-white/10 rounded-xl px-5 py-4 backdrop-blur-lg">
+                            <p class="text-[9px] text-gray-500 tracking-[.2em] uppercase">AW Technology</p>
+                            <p class="text-sm font-extrabold text-white mt-1">Performance & Innovation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BENEFÍCIOS VISUAIS -->
+        <section class="max-w-7xl mx-auto px-5 md:px-8 -mt-1">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="benefit-card rounded-xl p-5 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z"/>
+                            <path stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-white">Seleção de produtos</p>
+                        <p class="text-[10px] text-gray-500 mt-1">Catálogo de hardware</p>
+                    </div>
+                </div>
+
+                <div class="benefit-card rounded-xl p-5 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16"/>
+                            <path stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M8 4v3m8-3v3m-8 5v3m8-3v3m-8 5v3m8-3v3"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-white">Experiência organizada</p>
+                        <p class="text-[10px] text-gray-500 mt-1">Navegação intuitiva</p>
+                    </div>
+                </div>
+
+                <div class="benefit-card rounded-xl p-5 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l3-8 4 16 3-8h4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-white">Foco em performance</p>
+                        <p class="text-[10px] text-gray-500 mt-1">Tecnologia em destaque</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CATÁLOGO -->
+        <section id="product-grid-section" class="max-w-7xl mx-auto px-5 md:px-8 pt-24 pb-20 scroll-mt-20">
+
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-10">
+                <div>
+                    <p class="section-label mb-3">NOSSO CATÁLOGO</p>
+                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">
+                        Hardware <span class="text-blue-400">Premium</span>
+                    </h2>
+                    <p class="text-gray-500 text-sm mt-3 max-w-lg">
+                        Conheça os produtos disponíveis em nossa vitrine tecnológica.
+                    </p>
+                </div>
+
+                <div class="text-[10px] font-bold text-gray-500 tracking-[.16em] uppercase border border-white/10 rounded-lg px-4 py-3">
+                    AW TECHNOLOGY
+                </div>
+            </div>
+
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <p class="text-center text-gray-500 col-span-full py-20">Carregando catálogo...</p>
+            </div>
 
             <div id="pagination-container" class="mt-12 flex justify-center gap-3"></div>
         </section>
+
+        <!-- SOBRE A MARCA -->
+        <section id="sobre-aw" class="border-y border-white/5 bg-[#0D1118]">
+            <div class="max-w-7xl mx-auto px-5 md:px-8 py-16 md:py-20">
+                <div class="max-w-3xl">
+                    <p class="section-label mb-4">SOBRE A MARCA</p>
+                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">
+                        Tecnologia com identidade.
+                        <span class="text-blue-400">Performance com propósito.</span>
+                    </h2>
+                    <p class="text-gray-400 text-sm leading-8 mt-5">
+                        A AW TECHNOLOGY apresenta uma experiência digital dedicada ao universo do hardware e da tecnologia, unindo organização, design e recursos de navegação em uma vitrine demonstrativa.
+                    </p>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <footer class="bg-gray-950 border-t border-gray-800 mt-20 pt-16 pb-8">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-                <div class="md:col-span-1">
-                    <h2 class="text-2xl font-black tracking-tighter italic mb-4 uppercase">
-                        AW <span class="text-blue-500">Technology</span>
+    <!-- RODAPÉ -->
+    <footer class="bg-[#080A0F] pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-5 md:px-8">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
+
+                <div class="lg:col-span-1">
+                    <h2 class="text-xl font-extrabold tracking-tight">
+                        AW <span class="brand-gradient">TECHNOLOGY</span>
                     </h2>
-                    <p class="text-gray-500 text-sm leading-relaxed max-w-xs">
-                        Engenharia de alta performance e hardware de elite. Elevando o padrão do seu setup profissional.
+                    <p class="text-gray-500 text-xs leading-7 mt-4 max-w-xs">
+                        Tecnologia, hardware e uma experiência digital desenvolvida para apresentar soluções com identidade e sofisticação.
                     </p>
                 </div>
 
                 <div>
-                    <h3 class="text-white font-bold text-xs uppercase tracking-[0.2em] mb-6">Navegação</h3>
-                    <ul class="space-y-4 text-gray-500 text-sm">
-                        <li><a href="#" class="hover:text-blue-400 transition-colors">Home</a></li>
-                        <li><a href="#product-grid-section" class="hover:text-blue-400 transition-colors">Produtos</a></li>
-                        <li><a href="javascript:void(0)" onclick="demoAlert()" class="hover:text-blue-400 transition-colors">Suporte Técnico</a></li>
+                    <h3 class="text-white font-bold text-[10px] uppercase tracking-[.2em] mb-5">Navegação</h3>
+                    <ul class="space-y-4 text-gray-500 text-xs">
+                        <li><a href="#" class="footer-link">Início</a></li>
+                        <li><a href="#product-grid-section" class="footer-link">Produtos</a></li>
+                        <li><a href="#sobre-aw" class="footer-link">Sobre a AW</a></li>
+                        <li><a href="javascript:void(0)" onclick="demoAlert()" class="footer-link">Suporte técnico</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="text-white font-bold text-xs uppercase tracking-[0.2em] mb-6">Contato</h3>
-                    <ul class="space-y-4 text-gray-500 text-sm font-medium">
+                    <h3 class="text-white font-bold text-[10px] uppercase tracking-[.2em] mb-5">Contato</h3>
+                    <ul class="space-y-4 text-gray-500 text-xs">
                         <li class="flex items-center gap-3">
-                            <span class="text-blue-500 font-bold">SP</span> São Paulo, SP
+                            <span class="text-blue-400 font-bold">SP</span>
+                            São Paulo, SP
                         </li>
-                        <li class="flex items-center gap-3">
-                            <span class="text-blue-500 font-bold">EM</span> contato@awtech.com.br
+                        <li class="flex items-center gap-3 break-all">
+                            <span class="text-blue-400 font-bold">EM</span>
+                            contato@awtech.com.br
                         </li>
                     </ul>
                 </div>
 
-                <div class="flex flex-col items-start md:items-end">
-                    <h3 class="text-white font-bold text-xs uppercase tracking-[0.2em] mb-6">Corporativo</h3>
-                    <a href="login.html" id="login-footer-link" class="group relative flex items-center gap-3 bg-gray-900 border border-gray-800 px-6 py-3 rounded-xl text-[10px] font-black text-gray-400 transition-all hover:border-blue-500/50 hover:text-white uppercase tracking-widest">
-                        <div class="status-dot w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                        <span class="login-text">Portal do Parceiro</span>
+                <div class="flex flex-col items-start lg:items-end">
+                    <h3 class="text-white font-bold text-[10px] uppercase tracking-[.2em] mb-5">Área corporativa</h3>
+
+                    <a href="login.html" id="login-footer-link" class="group flex items-center gap-3 bg-white/[.03] border border-white/10 px-5 py-3.5 rounded-xl text-[10px] font-bold text-gray-400 transition-all hover:border-blue-500/50 hover:text-white uppercase tracking-widest">
+                        <div class="status-dot w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                        <span class="login-text">Acesso Restrito</span>
                     </a>
                 </div>
             </div>
 
-            <div class="border-t border-gray-900/50 pt-10 flex flex-col items-center gap-6">
-                <div class="flex gap-8">
-                    <a href="javascript:void(0)" onclick="demoAlert()" class="text-gray-600 hover:text-pink-500 transition-all transform hover:scale-110" title="Instagram">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-5">
+
+                <div class="flex gap-5">
+                    <a href="javascript:void(0)" onclick="demoAlert()" class="text-gray-600 hover:text-pink-400 transition" title="Instagram" aria-label="Instagram">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24">
+                            <rect x="2" y="2" width="20" height="20" rx="5"/>
+                            <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                        </svg>
                     </a>
-                    <a href="javascript:void(0)" onclick="demoAlert()" class="text-gray-600 hover:text-blue-600 transition-all transform hover:scale-110" title="Facebook">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path></svg>
+
+                    <a href="javascript:void(0)" onclick="demoAlert()" class="text-gray-600 hover:text-blue-400 transition" title="Facebook" aria-label="Facebook">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+                        </svg>
                     </a>
-                    <a href="javascript:void(0)" onclick="demoAlert()" class="text-gray-600 hover:text-red-600 transition-all transform hover:scale-110" title="YouTube">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg>
+
+                    <a href="javascript:void(0)" onclick="demoAlert()" class="text-gray-600 hover:text-red-400 transition" title="YouTube" aria-label="YouTube">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 23.498 6.186zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
                     </a>
                 </div>
 
-                <p class="text-gray-600 text-[9px] uppercase tracking-[0.4em] text-center font-medium">
-                    &copy; 2026 AW TECHNOLOGY — DESENVOLVIDO POR ANDRÉ WALDIGE
+                <p class="text-gray-600 text-[9px] uppercase tracking-[.2em] text-center font-medium">
+                    © 2026 AW TECHNOLOGY — DESENVOLVIDO POR ANDRÉ WALDIGE
                 </p>
             </div>
         </div>
@@ -201,12 +818,9 @@
 
     <script>
         function demoAlert() {
-            alert("Página de Demonstração: Esta funcionalidade ou rede social seria integrada em um ambiente de produção real. Siga o desenvolvedor André Waldige para ver o projeto completo!");
+            alert("Página de demonstração: esta funcionalidade seria integrada em um ambiente de produção real.");
         }
-    </script>
 
-    <script>
-        // SCRIPT DE CONTROLE DE ACESSO (Index Side)
         function checkAdminStatus() {
             const isLogged = localStorage.getItem('aw_admin_auth') === 'true';
             const body = document.body;
@@ -215,15 +829,23 @@
 
             if (isLogged) {
                 body.classList.add('is-admin');
-                if(loginText) loginText.innerText = "Painel Ativo";
-                if(statusDot) {
+
+                if (loginText) {
+                    loginText.innerText = "Painel Ativo";
+                }
+
+                if (statusDot) {
                     statusDot.classList.remove('bg-red-500');
                     statusDot.classList.add('bg-green-500');
                 }
             } else {
                 body.classList.remove('is-admin');
-                if(loginText) loginText.innerText = "Acesso Restrito";
-                if(statusDot) {
+
+                if (loginText) {
+                    loginText.innerText = "Acesso Restrito";
+                }
+
+                if (statusDot) {
                     statusDot.classList.remove('bg-green-500');
                     statusDot.classList.add('bg-red-500');
                 }
@@ -233,6 +855,8 @@
         document.addEventListener('DOMContentLoaded', checkAdminStatus);
         window.addEventListener('focus', checkAdminStatus);
     </script>
+
     <script src="script.js"></script>
+
 </body>
 </html>

@@ -1,79 +1,206 @@
-/* AW TECHNOLOGY - CSS Otimizado v14.2
-   Foco: Compatibilidade Cross-Browser e Estabilidade Mobile
-*/
 
+/* ============================================
+   AW TECHNOLOGY — CSS PROFISSIONAL
+   Upgrade visual | Versão 15.0
+   Foco: estabilidade, responsividade e performance
+============================================ */
+
+/* CONFIGURAÇÕES GERAIS */
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
-/* CONTAINER DE IMAGEM 
-   Ajustado para garantir renderização em motores WebKit antigos (iOS/Safari)
-*/
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 90px;
+}
+
+/* SELEÇÃO DE TEXTO */
+::selection {
+    background: rgba(37, 99, 235, 0.35);
+    color: #ffffff;
+}
+
+/* ============================================
+   IMAGENS DOS PRODUTOS
+============================================ */
+
 .product-img-container {
     width: 100% !important;
     display: flex !important;
     align-items: center;
     justify-content: center;
-    background-color: #ffffff !important;
-    overflow: hidden;
     position: relative;
-    border-radius: 0.75rem;
+    overflow: hidden;
+    background: #f8fafc !important;
+    border-radius: 0.85rem;
     z-index: 1;
+    isolation: isolate;
 }
 
-/* Fallback para navegadores que não entendem aspect-ratio */
-@supports (aspect-ratio: 16/10) {
+@supports (aspect-ratio: 16 / 10) {
     .product-img-container {
         aspect-ratio: 16 / 10;
     }
 }
-@supports not (aspect-ratio: 16/10) {
+
+@supports not (aspect-ratio: 16 / 10) {
     .product-img-container {
-        height: 200px; /* Altura fixa de segurança */
+        height: 200px;
     }
 }
 
 .product-img-container img {
     display: block !important;
-    max-width: 85% !important; /* Reduzido levemente para respiro lateral */
-    max-height: 85% !important;
     width: auto !important;
     height: auto !important;
+    max-width: 85% !important;
+    max-height: 85% !important;
     object-fit: contain !important;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    /* Previne borrão em algumas telas mobile */
-    backface-visibility: hidden; 
+    backface-visibility: hidden;
+    transition: transform 0.45s ease;
 }
 
-/* CARDS PREMIUM
-   Efeito de hover desativado em dispositivos touch para melhor UX
-*/
+/* ============================================
+   CARDS DE PRODUTOS
+============================================ */
+
 .card-premium {
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.5);
-    background: #1f2937;
-    border: 1px solid rgba(55, 65, 81, 0.5);
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    background: linear-gradient(
+        145deg,
+        #1f2937 0%,
+        #111827 100%
+    );
+    border: 1px solid rgba(148, 163, 184, 0.13);
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.55);
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
 }
 
-@media (hover: hover) {
+/* ==========================================
+   CARRINHO PREMIUM
+========================================== */
+
+#cart-sidebar {
+    background: linear-gradient(160deg, #121925 0%, #0C1017 100%);
+    box-shadow: -20px 0 70px rgba(0, 0, 0, .4);
+    max-width: 100%;
+}
+
+.cart-header {
+    background: rgba(255,255,255,.025);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.cart-section-label {
+    color: #8491A5;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+#cart-items {
+    min-height: 180px;
+    scrollbar-width: thin;
+    scrollbar-color: #394252 transparent;
+}
+
+#cart-items > * {
+    border-radius: 14px;
+}
+
+.cart-summary {
+    background: linear-gradient(145deg, #111722, #0B1018);
+    border-top: 1px solid rgba(255,255,255,.09);
+    box-shadow: 0 -12px 35px rgba(0,0,0,.15);
+}
+
+.cart-demo-notice {
+    background: rgba(52,120,246,.07);
+    border: 1px solid rgba(52,120,246,.17);
+    border-radius: 12px;
+}
+
+.demo-checkout-button {
+    background: linear-gradient(110deg, #3478F6, #245BC5);
+    box-shadow: 0 9px 28px rgba(52,120,246,.19);
+    transition: .25s ease;
+}
+
+.demo-checkout-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 13px 32px rgba(52,120,246,.30);
+}
+
+.demo-checkout-button:active {
+    transform: scale(.98);
+}
+
+/* MODAL DE FINALIZAÇÃO DEMONSTRATIVA */
+
+#demo-checkout-modal {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease, visibility .25s ease;
+}
+
+#demo-checkout-modal.is-visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.demo-modal-card {
+    transform: translateY(12px) scale(.98);
+    transition: transform .25s ease;
+}
+
+#demo-checkout-modal.is-visible .demo-modal-card {
+    transform: translateY(0) scale(1);
+}
+
+@media (max-width: 640px) {
+    #cart-sidebar {
+        width: 100%;
+    }
+
+    #cart-items {
+        padding: 16px;
+    }
+}
+
+
+@media (hover: hover) and (pointer: fine) {
     .card-premium:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px -20px rgba(37, 99, 235, 0.25);
-        border-color: rgba(59, 130, 246, 0.4);
+        transform: translateY(-6px);
+        border-color: rgba(59, 130, 246, 0.45);
+        box-shadow: 0 20px 40px -20px rgba(37, 99, 235, 0.3);
     }
 
-    .card-premium:hover img {
-        transform: scale(1.08);
+    .card-premium:hover .product-img-container img {
+        transform: scale(1.06);
     }
 }
 
-/* SCROLLBAR CUSTOMIZADA */
+/* ============================================
+   BARRA DE ROLAGEM
+============================================ */
+
 ::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -82,40 +209,99 @@ body {
 
 ::-webkit-scrollbar-thumb {
     background: #374151;
-    border-radius: 10px;
     border: 2px solid #111827;
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: #2563eb;
 }
 
-/* UTILITÁRIOS */
-html {
-    scroll-behavior: smooth;
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #374151 #111827;
 }
+
+/* ============================================
+   ELEMENTOS ADMINISTRATIVOS
+============================================ */
 
 .admin-only {
     display: none !important;
 }
 
+body.is-admin .admin-only {
+    display: block !important;
+}
+
+body.is-admin .admin-only-flex {
+    display: flex !important;
+}
+
+/* ============================================
+   CONTROLE DO MENU E CARRINHO
+============================================ */
+
 .no-scroll {
     overflow: hidden;
     height: 100vh;
+    height: 100dvh;
 }
 
-/* ANIMAÇÃO DE ENTRADA */
+/* ============================================
+   ANIMAÇÃO DOS PRODUTOS
+============================================ */
+
 #product-grid > div {
-    animation: fadeInCard 0.5s ease-out forwards;
+    animation: fadeInCard 0.45s ease-out both;
 }
 
 @keyframes fadeInCard {
-    from { 
-        opacity: 0; 
-        transform: translateY(15px); 
+    from {
+        opacity: 0;
+        transform: translateY(12px);
     }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   RESPONSIVIDADE
+============================================ */
+
+@media (max-width: 640px) {
+    .product-img-container {
+        border-radius: 0.7rem;
+    }
+
+    .card-premium {
+        border-radius: 0.85rem;
+    }
+
+    #product-grid > div {
+        animation-duration: 0.3s;
+    }
+}
+
+/* ============================================
+   ACESSIBILIDADE
+============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }

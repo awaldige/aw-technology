@@ -1,5 +1,8 @@
+
 const express = require("express");
 const router = express.Router();
+
+const authMiddleware = require("../middleware/auth");
 
 const {
   getProducts,
@@ -8,10 +11,12 @@ const {
   deleteProduct,
 } = require("../controllers/productController");
 
-// Rotas limpas (O controller se encarrega de ler o ?id= da URL)
+// Consulta pública
 router.get("/", getProducts);
-router.post("/", createProduct);
-router.put("/", updateProduct);     // <-- Removido o /:id
-router.delete("/", deleteProduct);  // <-- Removido o /:id
+
+// Operações exclusivas do administrador
+router.post("/", authMiddleware, createProduct);
+router.put("/", authMiddleware, updateProduct);
+router.delete("/", authMiddleware, deleteProduct);
 
 module.exports = router;
