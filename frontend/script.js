@@ -130,27 +130,60 @@ function getCartTotal() {
    4. CARREGAMENTO DOS PRODUTOS
    ===================================================== */
 
+
 async function loadProducts() {
     const productGrid = document.getElementById("product-grid");
+    const CACHE_KEY = "aw_products_cache";
 
+    // 1. Exibe imediatamente os produtos salvos anteriormente.
     try {
-        console.log("Carregando produtos pela API...");
+        const cachedData = localStorage.getItem(CACHE_KEY);
 
-        if (productGrid) {
-            productGrid.innerHTML = `
-                <p class="text-center text-gray-500 col-span-full py-20">
-                    Carregando catálogo...
-                </p>
-            `;
+        if (cachedData) {
+            const cachedProducts = JSON.parse(cachedData);
+
+            if (Array.isArray(cachedProducts)) {
+                products = cachedProducts.filter(product => {
+                    return (
+                        product &&
+                        product.id !== undefined &&
+                        Number.isFinite(Number(product.id))
+                    );
+                });
+
+                if (products.length > 0) {
+                    console.log(
+                        "Catálogo exibido pelo cache:",
+                        products.length
+                    );
+
+                    currentPage = 1;
+                    window.renderProducts();
+                }
+            }
         }
+    } catch (error) {
+        console.warn("Não foi possível utilizar o cache:", error);
+    }
+
+    // 2. Mostra carregamento somente quando não há produtos salvos.
+    if (products.length === 0 && productGrid) {
+        productGrid.innerHTML = `
+            <p class="text-center text-gray-500 col-span-full py-20">
+                Carregando catálogo...
+            </p>
+        `;
+    }
+
+    // 3. Busca os dados atualizados na API.
+    try {
+        console.log("Atualizando produtos pela API...");
 
         const response = await fetch(API_URL, {
             method: "GET",
-
             headers: {
                 "Accept": "application/json"
             },
-
             cache: "no-store"
         });
 
@@ -176,25 +209,38 @@ async function loadProducts() {
             );
         });
 
+        // 4. Atualiza o cache para a próxima visita.
+        try {
+            localStorage.setItem(
+                CACHE_KEY,
+                JSON.stringify(products)
+            );
+        } catch (error) {
+            console.warn("Não foi possível atualizar o cache:", error);
+        }
+
         console.log(
-            "Produtos carregados com sucesso:",
+            "Produtos atualizados pela API:",
             products.length
         );
 
         currentPage = 1;
-
         window.renderProducts();
 
     } catch (error) {
-        console.error(
-            "Erro ao carregar produtos:",
-            error
-        );
+        console.error("Erro ao atualizar produtos:", error);
+
+        // Se já existem produtos em cache, mantém o catálogo visível.
+        if (products.length > 0) {
+            console.warn(
+                "Mantendo catálogo salvo devido à falha na API."
+            );
+            return;
+        }
 
         if (productGrid) {
             productGrid.innerHTML = `
                 <div class="col-span-full text-center py-16">
-
                     <p class="text-red-400 font-semibold mb-3">
                         Não foi possível carregar os produtos.
                     </p>
@@ -210,7 +256,6 @@ async function loadProducts() {
                     >
                         TENTAR NOVAMENTE
                     </button>
-
                 </div>
             `;
         }
